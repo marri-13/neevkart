@@ -20,6 +20,15 @@ export default function Categories() {
   ];
 
   return (
+
+    <section id="categories" className="bg-white py-32 md:py-44">
+      <div className="luxury-container">
+        <div className="mx-auto mb-20 max-w-2xl text-center">
+          <p className="mb-4 text-[10px] font-semibold uppercase tracking-[0.32em] text-[#a51d49]">Occasion Edits</p>
+          <h2 className="font-display text-3xl font-medium text-[#1f1712] md:text-[2.4rem]">Shop By Trend</h2>
+        </div>
+
+        <div className="grid gap-12 md:grid-cols-2">
     <section id="categories" className="bg-white py-28 md:py-36">
       <div className="luxury-container">
         <div className="mx-auto mb-16 max-w-2xl text-center">
@@ -28,11 +37,16 @@ export default function Categories() {
         </div>
 
         <div className="grid gap-10 md:grid-cols-2">
+
           {trends.map((trend) => (
             <Link
               key={trend.title}
               href={trend.href}
+
+              className="group relative h-[390px] overflow-hidden rounded-[2rem] animate-luxury-rise bg-[#f5e8dc] shadow-[0_24px_70px_rgba(43,33,27,0.12)] md:h-[470px]"
+
               className="group relative h-[390px] overflow-hidden rounded-[2rem] bg-[#f5e8dc] shadow-[0_24px_70px_rgba(43,33,27,0.12)] md:h-[470px]"
+
             >
               <Image
                 src={trend.image}
@@ -62,7 +76,7 @@ export default function Categories() {
           ))}
         </div>
 
-        <div className="mt-10 flex justify-center gap-2">
+        <div className="mt-20 flex justify-center gap-2">
           <span className="h-px w-16 bg-[#8c8178]" />
           <span className="h-px w-8 bg-[#d8c8bd]" />
         </div>
