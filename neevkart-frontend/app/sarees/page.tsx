@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { Suspense, useMemo, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import ProductCard from "../components/product/ProductCard";
-import { products } from "@/lib/products";
+import { Product, products } from "@/lib/products";
 import Navbar from "../components/navbar/Navbar";
 import Footer from "../components/home/Footer";
 
@@ -19,9 +20,90 @@ const priceRanges = [
   { label: "Above Rs. 20,000", min: 20000, max: Infinity },
 ];
 
-export default function SareesPage() {
-  const [selectedCategory, setSelectedCategory] = useState("All");
-  const [selectedFabric, setSelectedFabric] = useState<string | null>(null);
+const categoryQueryMap: Record<string, string> = {
+  silk: "Silk Sarees",
+  cotton: "Cotton Sarees",
+  wedding: "Wedding Collection",
+  festive: "Festive Wear",
+  new: "New Arrivals",
+  "new-arrivals": "New Arrivals",
+};
+
+const typeLabels: Record<string, string> = {
+  summer: "Summer Sarees",
+  "party-wear": "Party Wear Sarees",
+  "daily-wear": "Daily Wear Sarees",
+  designer: "Designer Sarees",
+  kanjivaram: "Kanjivaram Silk Sarees",
+  banarasi: "Banarasi Sarees",
+  "silk-cotton": "Silk Cotton Sarees",
+  chanderi: "Chanderi Cotton Sarees",
+  bridal: "Bridal Sarees",
+  traditional: "Traditional Sarees",
+};
+
+function toTitleCase(value: string) {
+  return value
+    .split("-")
+    .filter(Boolean)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
+function normalize(value: string) {
+  return value.toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+}
+
+function categoryFromQuery(value: string | null) {
+  if (!value) {
+    return "All";
+  }
+
+  const normalized = normalize(value);
+  return categoryQueryMap[normalized] ?? categories.find((category) => normalize(category) === normalized) ?? "All";
+}
+
+function fabricFromQuery(value: string | null) {
+  if (!value) {
+    return null;
+  }
+
+  const normalized = normalize(value);
+  return fabricTypes.find((fabric) => normalize(fabric) === normalized) ?? toTitleCase(normalized);
+}
+
+function productMatchesType(product: Product, type: string | null) {
+  if (!type) {
+    return true;
+  }
+
+  const normalizedType = normalize(type);
+  const searchableValues = [
+    product.name,
+    product.category,
+    product.fabric,
+    product.occasion,
+    product.tag ?? "",
+    ...(product.collections ?? []),
+  ].map(normalize);
+
+  return searchableValues.some((value) => value === normalizedType || value.includes(normalizedType));
+}
+
+function SareesListing({
+  queryCategory,
+  queryMaterial,
+  queryType,
+}: {
+  queryCategory: string | null;
+  queryMaterial: string | null;
+  queryType: string | null;
+}) {
+  const initialCategory = categoryFromQuery(queryCategory);
+  const initialFabric = fabricFromQuery(queryMaterial);
+
+  const [selectedCategory, setSelectedCategory] = useState(initialCategory);
+  const [selectedFabric, setSelectedFabric] = useState<string | null>(initialFabric);
   const [selectedPriceRange, setSelectedPriceRange] = useState<{ min: number; max: number }>({
     min: 0,
     max: Infinity,
@@ -29,17 +111,35 @@ export default function SareesPage() {
   const [sortBy, setSortBy] = useState<SortOption>("newest");
   const [showFilters, setShowFilters] = useState(false);
 
+
+  const pageTitle = useMemo(() => {
+    if (queryType) {
+      return typeLabels[normalize(queryType)] ?? `${toTitleCase(normalize(queryType))} Sarees`;
+    }
+
+    if (selectedCategory !== "All") {
+      return selectedCategory;
+    }
+
+    if (selectedFabric) {
+      return `${selectedFabric} Sarees`;
+    }
+
+    return "Sarees Collection";
+  }, [queryType, selectedCategory, selectedFabric]);
+
   const filteredProducts = useMemo(() => {
-    let result = products;
+    let result = [...products];
 
     if (selectedCategory !== "All") {
       result = result.filter((p) => p.category === selectedCategory);
     }
 
     if (selectedFabric) {
-      result = result.filter((p) => p.fabric.toLowerCase().includes(selectedFabric.toLowerCase()));
+      result = result.filter((p) => normalize(p.fabric).includes(normalize(selectedFabric)));
     }
 
+    result = result.filter((p) => productMatchesType(p, queryType));
     result = result.filter((p) => p.price >= selectedPriceRange.min && p.price <= selectedPriceRange.max);
 
     if (sortBy === "price-low") {
@@ -51,7 +151,7 @@ export default function SareesPage() {
     }
 
     return result;
-  }, [selectedCategory, selectedFabric, selectedPriceRange, sortBy]);
+  }, [selectedCategory, selectedFabric, selectedPriceRange, sortBy, queryType]);
 
   return (
     <>
@@ -65,7 +165,15 @@ export default function SareesPage() {
                 Home
               </Link>
               <span>/</span>
-              <span className="text-[#1f1712]">Sarees</span>
+              <Link href="/sarees" className="hover:text-[#1f1712]">
+                Sarees
+              </Link>
+              {pageTitle !== "Sarees Collection" && (
+                <>
+                  <span>/</span>
+                  <span className="text-[#1f1712]">{pageTitle}</span>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -73,8 +181,10 @@ export default function SareesPage() {
         {/* Header */}
         <div className="border-b border-[#eadfd6]">
           <div className="luxury-container py-8">
-            <h1 className="text-3xl font-medium text-[#1f1712] md:text-4xl">Sarees Collection</h1>
-            <p className="mt-2 text-[#8a7062]">Discover our curated collection of premium sarees</p>
+            <h1 className="text-3xl font-medium text-[#1f1712] md:text-4xl">{pageTitle}</h1>
+            <p className="mt-2 text-[#8a7062]">
+              Browse only the sarees that match this collection, material, or occasion.
+            </p>
           </div>
         </div>
 
@@ -221,7 +331,7 @@ export default function SareesPage() {
                 </div>
               ) : (
                 <div className="py-16 text-center">
-                  <p className="mb-4 text-lg text-[#8a7062]">No products found matching your filters.</p>
+                  <p className="mb-4 text-lg text-[#8a7062]">No sarees found matching your filters.</p>
                   <button
                     onClick={() => {
                       setSelectedCategory("All");
@@ -249,5 +359,26 @@ export default function SareesPage() {
       </main>
       <Footer />
     </>
+  );
+}
+
+function SareesContent() {
+  const searchParams = useSearchParams();
+
+  return (
+    <SareesListing
+      key={searchParams.toString()}
+      queryCategory={searchParams.get("category")}
+      queryMaterial={searchParams.get("material")}
+      queryType={searchParams.get("type")}
+    />
+  );
+}
+
+export default function SareesPage() {
+  return (
+    <Suspense fallback={null}>
+      <SareesContent />
+    </Suspense>
   );
 }
