@@ -156,9 +156,9 @@ function SareesListing({
   return (
     <>
       <Navbar />
-      <main className="min-h-screen bg-white">
+      <main className="min-h-screen bg-[#fffaf5]">
         {/* Breadcrumb */}
-        <div className="border-b border-[#eadfd6]">
+        <div className="border-b border-[#eadfd6] bg-white/70">
           <div className="luxury-container py-4">
             <div className="flex items-center gap-2 text-sm text-[#8a7062]">
               <Link href="/" className="hover:text-[#1f1712]">
@@ -179,24 +179,33 @@ function SareesListing({
         </div>
 
         {/* Header */}
+
+        <div className="bg-gradient-to-br from-white via-[#fff8f2] to-[#f6e8dc]">
+          <div className="luxury-container py-14 md:py-20">
+            <p className="mb-4 text-[10px] font-bold uppercase tracking-[0.3em] text-[#a51d49]">NeevKart Curated Collection</p>
+            <h1 className="font-display text-4xl font-medium text-[#1f1712] md:text-6xl">{pageTitle}</h1>
+            <p className="mt-5 max-w-2xl text-sm leading-7 text-[#7f6758] md:text-base">
+              Browse a refined selection of sarees filtered by collection, fabric, and occasion with more room to view every detail.
+=======
         <div className="border-b border-[#eadfd6]">
           <div className="luxury-container py-8">
             <h1 className="text-3xl font-medium text-[#1f1712] md:text-4xl">{pageTitle}</h1>
             <p className="mt-2 text-[#8a7062]">
               Browse only the sarees that match this collection, material, or occasion.
+
             </p>
           </div>
         </div>
 
-        <div className="luxury-container py-8">
-          <div className="grid gap-8 lg:grid-cols-4">
+        <div className="luxury-container py-12 md:py-16">
+          <div className="grid gap-10 lg:grid-cols-[290px_1fr]">
             {/* Filters Sidebar */}
             <div
               className={`lg:col-span-1 ${
                 showFilters ? "block" : "hidden lg:block"
-              } border-b border-[#eadfd6] pb-8 lg:border-b-0 lg:border-r lg:pr-8`}
+              } rounded-[1.5rem] border border-[#eadfd6] bg-white p-6 shadow-[0_18px_45px_rgba(43,33,27,0.06)] lg:sticky lg:top-40 lg:self-start`}
             >
-              <div className="mb-6 flex items-center justify-between lg:mb-0">
+              <div className="mb-8 flex items-center justify-between">
                 <h3 className="text-lg font-medium text-[#1f1712]">Filters</h3>
                 <button
                   onClick={() => setShowFilters(false)}
@@ -207,13 +216,13 @@ function SareesListing({
               </div>
 
               {/* Category Filter */}
-              <div className="mb-8">
+              <div className="mb-9">
                 <h4 className="mb-4 text-sm font-semibold uppercase tracking-[0.1em] text-[#1f1712]">
                   Category
                 </h4>
-                <div className="space-y-3">
+                <div className="space-y-3.5">
                   {categories.map((cat) => (
-                    <label key={cat} className="flex cursor-pointer items-center gap-3">
+                    <label key={cat} className="flex cursor-pointer items-center gap-3 rounded-xl px-2 py-1.5 transition hover:bg-[#fff7f9]">
                       <input
                         type="radio"
                         name="category"
@@ -228,13 +237,13 @@ function SareesListing({
               </div>
 
               {/* Price Range Filter */}
-              <div className="mb-8">
+              <div className="mb-9">
                 <h4 className="mb-4 text-sm font-semibold uppercase tracking-[0.1em] text-[#1f1712]">
                   Price
                 </h4>
-                <div className="space-y-3">
+                <div className="space-y-3.5">
                   {priceRanges.map((range) => (
-                    <label key={range.label} className="flex cursor-pointer items-center gap-3">
+                    <label key={range.label} className="flex cursor-pointer items-center gap-3 rounded-xl px-2 py-1.5 transition hover:bg-[#fff7f9]">
                       <input
                         type="radio"
                         name="price"
@@ -251,12 +260,12 @@ function SareesListing({
               </div>
 
               {/* Fabric Filter */}
-              <div className="mb-8">
+              <div className="mb-9">
                 <h4 className="mb-4 text-sm font-semibold uppercase tracking-[0.1em] text-[#1f1712]">
                   Fabric
                 </h4>
-                <div className="space-y-3">
-                  <label className="flex cursor-pointer items-center gap-3">
+                <div className="space-y-3.5">
+                  <label className="flex cursor-pointer items-center gap-3 rounded-xl px-2 py-1.5 transition hover:bg-[#fff7f9]">
                     <input
                       type="checkbox"
                       checked={selectedFabric === null}
@@ -266,7 +275,7 @@ function SareesListing({
                     <span className="text-sm text-[#6f5948]">All Fabrics</span>
                   </label>
                   {fabricTypes.map((fabric) => (
-                    <label key={fabric} className="flex cursor-pointer items-center gap-3">
+                    <label key={fabric} className="flex cursor-pointer items-center gap-3 rounded-xl px-2 py-1.5 transition hover:bg-[#fff7f9]">
                       <input
                         type="checkbox"
                         checked={selectedFabric === fabric}
@@ -287,16 +296,16 @@ function SareesListing({
                   setSelectedPriceRange({ min: 0, max: Infinity });
                   setSortBy("newest");
                 }}
-                className="w-full border border-[#8a7062] py-2 text-sm font-medium text-[#1f1712] hover:bg-[#f4e8de]"
+                className="w-full rounded-full border border-[#a51d49]/35 px-5 py-3 text-xs font-bold uppercase tracking-[0.16em] text-[#a51d49] transition hover:bg-[#a51d49] hover:text-white"
               >
                 Clear All Filters
               </button>
             </div>
 
             {/* Main Content */}
-            <div className="lg:col-span-3">
+            <div className="min-w-0">
               {/* Toolbar */}
-              <div className="mb-8 flex flex-col items-center justify-between gap-4 border-b border-[#eadfd6] pb-6 sm:flex-row">
+              <div className="mb-10 flex flex-col items-center justify-between gap-5 rounded-[1.4rem] border border-[#eadfd6] bg-white px-6 py-5 shadow-[0_14px_38px_rgba(43,33,27,0.05)] sm:flex-row">
                 <p className="text-sm text-[#8a7062]">
                   Showing <span className="font-semibold text-[#1f1712]">{filteredProducts.length}</span> products
                 </p>
@@ -304,7 +313,7 @@ function SareesListing({
                 <div className="flex w-full items-center gap-3 sm:w-auto">
                   <button
                     onClick={() => setShowFilters(!showFilters)}
-                    className="flex items-center gap-2 rounded border border-[#8a7062] px-4 py-2 text-sm font-medium text-[#1f1712] lg:hidden"
+                    className="flex items-center gap-2 rounded-full border border-[#a51d49]/35 px-5 py-2.5 text-sm font-semibold text-[#a51d49] lg:hidden"
                   >
                     ⚙ Filters
                   </button>
@@ -312,7 +321,7 @@ function SareesListing({
                   <select
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value as SortOption)}
-                    className="flex-1 rounded border border-[#d4c4b0] bg-white px-3 py-2 text-sm text-[#1f1712] focus:border-[#a51d49] focus:outline-none sm:flex-none"
+                    className="flex-1 rounded-full border border-[#d4c4b0] bg-white px-5 py-2.5 text-sm text-[#1f1712] focus:border-[#a51d49] focus:outline-none sm:flex-none"
                   >
                     <option value="newest">Newest</option>
                     <option value="price-low">Price: Low to High</option>
@@ -324,7 +333,7 @@ function SareesListing({
 
               {/* Products Grid */}
               {filteredProducts.length > 0 ? (
-                <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="grid gap-8 sm:grid-cols-2 xl:grid-cols-3">
                   {filteredProducts.map((product) => (
                     <ProductCard key={product.id} product={product} />
                   ))}
@@ -349,8 +358,8 @@ function SareesListing({
         </div>
 
         {/* Policy Banner */}
-        <div className="border-t border-[#eadfd6] bg-[#f9f6f2]">
-          <div className="luxury-container grid gap-4 py-8 text-center text-sm text-[#6f5948] md:grid-cols-3">
+        <div className="border-t border-[#eadfd6] bg-white">
+          <div className="luxury-container grid gap-4 py-10 text-center text-sm text-[#6f5948] md:grid-cols-3">
             <p>✓ Secure online payments only</p>
             <p>✓ No Cash on Delivery (COD)</p>
             <p>✓ All sales are final. No return or exchange.</p>

@@ -6,7 +6,7 @@ import Footer from "../components/home/Footer";
 
 export default function OrdersPage() {
   // This will be connected to backend later
-  const orders: any[] = [];
+  const orders: never[] = [];
 
   return (
     <>

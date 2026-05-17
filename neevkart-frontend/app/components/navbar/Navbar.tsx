@@ -119,6 +119,16 @@ export default function Navbar() {
       </div>
 
       <nav className="border-t border-[#f0e2d8] bg-white">
+
+        <div className="luxury-container hidden h-14 items-stretch justify-center gap-3 text-[12px] font-semibold uppercase tracking-[0.13em] text-[#56463e] lg:flex">
+          {navItems.map((item) => (
+            <div key={item.label} className="group relative flex items-center">
+              <Link href={item.href} className="flex h-14 items-center rounded-full px-5 transition hover:bg-[#fff7f9] hover:text-[#a51d49]">
+                {item.label}
+              </Link>
+              <div className="invisible absolute left-1/2 top-full z-50 w-72 -translate-x-1/2 rounded-b-[1.5rem] border border-[#f0e2d8] bg-white/98 p-5 opacity-0 shadow-[0_24px_60px_rgba(43,33,27,0.16)] backdrop-blur transition group-hover:visible group-hover:opacity-100">
+                <div className="mb-3 border-b border-[#f4e8de] px-2 pb-3 text-[10px] font-bold uppercase tracking-[0.22em] text-[#a51d49]">
+=======
         <div className="luxury-container hidden h-11 items-stretch justify-center gap-2 text-[12px] font-medium text-[#56463e] lg:flex">
           {navItems.map((item) => (
             <div key={item.label} className="group relative flex items-center">
@@ -127,13 +137,18 @@ export default function Navbar() {
               </Link>
               <div className="invisible absolute left-1/2 top-full z-50 w-56 -translate-x-1/2 rounded-b-lg border border-[#f0e2d8] bg-white p-3 opacity-0 shadow-[0_18px_35px_rgba(43,33,27,0.14)] transition group-hover:visible group-hover:opacity-100">
                 <div className="mb-2 border-b border-[#f4e8de] px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#a51d49]">
+
                   {item.label} Types
                 </div>
                 {item.menu.map((menuItem) => (
                   <Link
                     key={menuItem.href}
                     href={menuItem.href}
+
+                    className="block rounded-xl px-3 py-3 text-[12px] font-medium normal-case tracking-normal text-[#56463e] transition hover:bg-[#fff1f5] hover:pl-4 hover:text-[#a51d49]"
+=======
                     className="block rounded-md px-3 py-2 text-[12px] text-[#56463e] transition hover:bg-[#fff1f5] hover:text-[#a51d49]"
+
                   >
                     {menuItem.label}
                   </Link>
