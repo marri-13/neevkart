@@ -7,17 +7,29 @@ export default function FeaturedProducts() {
   const featured = products.slice(0, 4);
 
   return (
+
     <section id="featured" className="bg-[#fffaf5] pb-32 pt-28 md:pb-44 md:pt-36">
       <div className="luxury-container">
         <div className="mx-auto mb-20 max-w-2xl text-center">
           <p className="mb-4 text-[10px] font-semibold uppercase tracking-[0.32em] text-[#a51d49]">Signature Edit</p>
           <h2 className="font-display text-3xl font-medium text-[#1f1712] md:text-[2.4rem]">Customer Favourites</h2>
+
+    <section id="featured" className="bg-[#fffaf5] pb-28 pt-10 md:pb-36 md:pt-16">
+      <div className="luxury-container">
+        <div className="mx-auto mb-16 max-w-2xl text-center">
+          <p className="mb-4 text-[10px] font-semibold uppercase tracking-[0.32em] text-[#a51d49]">Signature Edit</p>
+          <h2 className="font-display text-3xl font-medium text-[#1f1712] md:text-[2.65rem]">Customer Favourites</h2>
+
           <p className="mt-5 text-sm leading-7 text-[#7f6758]">
             A polished selection of premium drapes chosen for weddings, celebrations, and graceful everyday styling.
           </p>
         </div>
 
+
         <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-12">
+
+        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4 xl:gap-10">
+
           {featured.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
