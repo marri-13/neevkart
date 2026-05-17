@@ -179,12 +179,20 @@ function SareesListing({
         </div>
 
         {/* Header */}
+
         <div className="bg-gradient-to-br from-white via-[#fff8f2] to-[#f6e8dc]">
           <div className="luxury-container py-14 md:py-20">
             <p className="mb-4 text-[10px] font-bold uppercase tracking-[0.3em] text-[#a51d49]">NeevKart Curated Collection</p>
             <h1 className="font-display text-4xl font-medium text-[#1f1712] md:text-6xl">{pageTitle}</h1>
             <p className="mt-5 max-w-2xl text-sm leading-7 text-[#7f6758] md:text-base">
               Browse a refined selection of sarees filtered by collection, fabric, and occasion with more room to view every detail.
+=======
+        <div className="border-b border-[#eadfd6]">
+          <div className="luxury-container py-8">
+            <h1 className="text-3xl font-medium text-[#1f1712] md:text-4xl">{pageTitle}</h1>
+            <p className="mt-2 text-[#8a7062]">
+              Browse only the sarees that match this collection, material, or occasion.
+
             </p>
           </div>
         </div>
