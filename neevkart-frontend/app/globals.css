@@ -23,9 +23,10 @@ html {
 
 body {
   min-height: 100vh;
-  background: #ffffff;
+  background: #fffaf5;
   color: var(--nk-ink);
   font-family: "Poppins", Arial, Helvetica, sans-serif;
+  text-rendering: optimizeLegibility;
 }
 
 button,
@@ -42,6 +43,6 @@ a {
 }
 
 .luxury-container {
-  width: calc(100% - clamp(2rem, 4vw, 5rem));
+  width: min(100% - clamp(2rem, 6vw, 6rem), 1380px);
   margin-inline: auto;
 }

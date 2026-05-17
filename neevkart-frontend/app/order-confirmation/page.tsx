@@ -1,11 +1,12 @@
 "use client";
 
+import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Navbar from "../components/navbar/Navbar";
 import Footer from "../components/home/Footer";
 
-export default function OrderConfirmationPage() {
+function OrderConfirmationContent() {
   const searchParams = useSearchParams();
   const paymentId = searchParams.get("payment_id");
 
@@ -79,5 +80,13 @@ export default function OrderConfirmationPage() {
       </main>
       <Footer />
     </>
+  );
+}
+
+export default function OrderConfirmationPage() {
+  return (
+    <Suspense fallback={null}>
+      <OrderConfirmationContent />
+    </Suspense>
   );
 }

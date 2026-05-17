@@ -6,17 +6,17 @@ import { useEffect, useState } from "react";
 const slides = [
   {
     image: "/images/hero-heritage.png",
-    eyebrow: "New Collection",
-    title: "Sarees for graceful celebrations",
-    text: "Fresh occasion drapes in soft florals, jewel tones, and timeless craft.",
-    cta: "Shop Now",
+    eyebrow: "The NeevKart Atelier",
+    title: "Sarees crafted for graceful celebrations",
+    text: "Premium drapes in refined palettes, elegant borders, and timeless Indian craftsmanship.",
+    cta: "Explore Collection",
     position: "object-center",
   },
   {
     image: "/images/hero-bridal.png",
-    eyebrow: "Wedding Edit",
-    title: "Regal drapes for wedding moments",
-    text: "Rich zari, heirloom reds, and ceremonial elegance for special days.",
+    eyebrow: "Wedding Couture",
+    title: "Regal drapes for unforgettable moments",
+    text: "Statement silks, heirloom reds, and ceremonial detailing for your grand occasions.",
     cta: "Shop Wedding",
     position: "object-[center_10%]",
   },
@@ -24,7 +24,7 @@ const slides = [
     image: "/images/hero-elegance.png",
     eyebrow: "Luxury Silks",
     title: "Quiet elegance in every drape",
-    text: "Soft shimmer, delicate borders, and a refined festive finish.",
+    text: "Soft shimmer, delicate borders, and a refined finish designed to feel truly premium.",
     cta: "Explore Silks",
     position: "object-center",
   },
@@ -44,9 +44,9 @@ export default function Hero() {
   const active = slides[activeSlide];
 
   return (
-    <section className="bg-white py-5">
+    <section className="bg-[#fffaf5] pb-10 pt-6 md:pb-16">
       <div className="luxury-container">
-        <div className="relative h-[520px] overflow-hidden rounded-md bg-[#f4e6d8] md:h-[68vh] md:min-h-[610px]">
+        <div className="relative h-[560px] overflow-hidden rounded-[2rem] bg-[#f4e6d8] shadow-[0_28px_80px_rgba(43,33,27,0.16)] ring-1 ring-[#eadfd6] md:h-[72vh] md:min-h-[650px]">
           {slides.map((slide, index) => (
             <Image
               key={slide.image}
@@ -61,29 +61,36 @@ export default function Hero() {
             />
           ))}
 
-          <div className="absolute inset-y-0 left-0 w-[58%] bg-gradient-to-r from-[#201611]/68 via-[#201611]/32 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#160f0b]/78 via-[#160f0b]/38 to-transparent" />
+          <div className="absolute inset-x-8 top-8 h-px bg-gradient-to-r from-[#f4d995]/70 via-white/20 to-transparent" />
 
           <div className="absolute inset-0 flex items-center">
-            <div className="ml-7 max-w-[360px] text-white sm:ml-12 md:ml-20">
-              <p className="mb-4 text-[10px] font-semibold uppercase tracking-[0.28em] text-[#f4d995]">
+            <div className="ml-7 max-w-[520px] text-white sm:ml-12 md:ml-20">
+              <p className="mb-5 text-[10px] font-semibold uppercase tracking-[0.34em] text-[#f4d995]">
                 {active.eyebrow}
               </p>
-              <h1 className="font-display text-[2.15rem] font-medium leading-[1.12] md:text-[2.85rem]">
+              <h1 className="font-display text-[2.45rem] font-medium leading-[1.05] md:text-[4.3rem]">
                 {active.title}
               </h1>
-              <p className="mt-5 text-sm leading-7 text-white/86">{active.text}</p>
-              <div className="mt-8">
+              <p className="mt-6 max-w-[430px] text-base leading-8 text-white/86">{active.text}</p>
+              <div className="mt-10 flex flex-wrap gap-4">
                 <a
                   href="#featured"
-                  className="inline-flex items-center justify-center rounded-full bg-white px-10 py-4 text-sm font-semibold text-[#a51d49] transition hover:bg-[#f4d995] hover:text-[#2b211b]"
+                  className="inline-flex min-w-52 items-center justify-center rounded-full bg-white px-10 py-4 text-sm font-bold uppercase tracking-[0.16em] text-[#a51d49] shadow-[0_16px_35px_rgba(0,0,0,0.18)] transition hover:-translate-y-0.5 hover:bg-[#f4d995] hover:text-[#2b211b]"
                 >
                   {active.cta}
+                </a>
+                <a
+                  href="/sarees?category=wedding"
+                  className="inline-flex min-w-48 items-center justify-center rounded-full border border-white/70 bg-white/10 px-10 py-4 text-sm font-bold uppercase tracking-[0.16em] text-white backdrop-blur-sm transition hover:-translate-y-0.5 hover:bg-white/18"
+                >
+                  Wedding Edit
                 </a>
               </div>
             </div>
           </div>
 
-          <div className="absolute bottom-6 left-1/2 flex -translate-x-1/2 gap-3">
+          <div className="absolute bottom-8 left-1/2 flex -translate-x-1/2 gap-3">
             {slides.map((slide, index) => (
               <button
                 key={slide.image}

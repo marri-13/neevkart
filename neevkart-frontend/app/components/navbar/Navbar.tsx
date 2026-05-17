@@ -1,6 +1,71 @@
 import Link from "next/link";
 import CartCount from "./CartCount";
 
+const navItems = [
+  {
+    label: "Sarees",
+    href: "/sarees",
+    menu: [
+      { label: "All Sarees", href: "/sarees" },
+      { label: "Summer Sarees", href: "/sarees?type=summer" },
+      { label: "Party Wear Sarees", href: "/sarees?type=party-wear" },
+      { label: "Daily Wear Sarees", href: "/sarees?type=daily-wear" },
+      { label: "Designer Sarees", href: "/sarees?type=designer" },
+    ],
+  },
+  {
+    label: "Silks",
+    href: "/sarees?material=silk",
+    menu: [
+      { label: "All Silk Sarees", href: "/sarees?material=silk" },
+      { label: "Kanjivaram Silk", href: "/sarees?type=kanjivaram" },
+      { label: "Banarasi Silk", href: "/sarees?type=banarasi" },
+      { label: "Silk Cotton", href: "/sarees?material=silk-cotton" },
+      { label: "Traditional Silks", href: "/sarees?type=traditional&material=silk" },
+    ],
+  },
+  {
+    label: "Cotton",
+    href: "/sarees?material=cotton",
+    menu: [
+      { label: "All Cotton Sarees", href: "/sarees?material=cotton" },
+      { label: "Chanderi Cotton", href: "/sarees?type=chanderi" },
+      { label: "Summer Cotton", href: "/sarees?type=summer&material=cotton" },
+      { label: "Daily Wear Cotton", href: "/sarees?type=daily-wear&material=cotton" },
+    ],
+  },
+  {
+    label: "Wedding",
+    href: "/sarees?category=wedding",
+    menu: [
+      { label: "Wedding Collection", href: "/sarees?category=wedding" },
+      { label: "Bridal Sarees", href: "/sarees?type=bridal" },
+      { label: "Reception Sarees", href: "/sarees?type=party-wear&category=wedding" },
+      { label: "Banarasi Wedding", href: "/sarees?type=banarasi&category=wedding" },
+    ],
+  },
+  {
+    label: "Festive",
+    href: "/sarees?category=festive",
+    menu: [
+      { label: "Festive Wear", href: "/sarees?category=festive" },
+      { label: "Party Wear Sarees", href: "/sarees?type=party-wear" },
+      { label: "Traditional Sarees", href: "/sarees?type=traditional" },
+      { label: "Silk Cotton Festive", href: "/sarees?material=silk-cotton&category=festive" },
+    ],
+  },
+  {
+    label: "New Arrivals",
+    href: "/sarees?category=new",
+    menu: [
+      { label: "Latest Sarees", href: "/sarees?category=new" },
+      { label: "Designer Sarees", href: "/sarees?type=designer" },
+      { label: "Summer Sarees", href: "/sarees?type=summer" },
+      { label: "Fresh Festive Picks", href: "/sarees?category=new&type=party-wear" },
+    ],
+  },
+];
+
 export default function Navbar() {
   return (
     <header className="sticky top-0 z-50 bg-white text-[#2b211b] shadow-[0_8px_28px_rgba(43,33,27,0.08)]">
@@ -54,25 +119,28 @@ export default function Navbar() {
       </div>
 
       <nav className="border-t border-[#f0e2d8] bg-white">
-        <div className="luxury-container hidden h-11 items-center justify-center gap-9 text-[12px] font-medium text-[#56463e] lg:flex">
-          <Link href="/sarees?type=sarees" className="transition hover:text-[#a51d49]">
-            Sarees
-          </Link>
-          <Link href="/sarees?material=silk" className="transition hover:text-[#a51d49]">
-            Silks
-          </Link>
-          <Link href="/sarees?material=cotton" className="transition hover:text-[#a51d49]">
-            Cotton
-          </Link>
-          <Link href="/sarees?category=wedding" className="transition hover:text-[#a51d49]">
-            Wedding
-          </Link>
-          <Link href="/sarees?category=festive" className="transition hover:text-[#a51d49]">
-            Festive
-          </Link>
-          <Link href="/sarees?category=new" className="transition hover:text-[#a51d49]">
-            New Arrivals
-          </Link>
+        <div className="luxury-container hidden h-14 items-stretch justify-center gap-3 text-[12px] font-semibold uppercase tracking-[0.13em] text-[#56463e] lg:flex">
+          {navItems.map((item) => (
+            <div key={item.label} className="group relative flex items-center">
+              <Link href={item.href} className="flex h-14 items-center rounded-full px-5 transition hover:bg-[#fff7f9] hover:text-[#a51d49]">
+                {item.label}
+              </Link>
+              <div className="invisible absolute left-1/2 top-full z-50 w-72 -translate-x-1/2 rounded-b-[1.5rem] border border-[#f0e2d8] bg-white/98 p-5 opacity-0 shadow-[0_24px_60px_rgba(43,33,27,0.16)] backdrop-blur transition group-hover:visible group-hover:opacity-100">
+                <div className="mb-3 border-b border-[#f4e8de] px-2 pb-3 text-[10px] font-bold uppercase tracking-[0.22em] text-[#a51d49]">
+                  {item.label} Types
+                </div>
+                {item.menu.map((menuItem) => (
+                  <Link
+                    key={menuItem.href}
+                    href={menuItem.href}
+                    className="block rounded-xl px-3 py-3 text-[12px] font-medium normal-case tracking-normal text-[#56463e] transition hover:bg-[#fff1f5] hover:pl-4 hover:text-[#a51d49]"
+                  >
+                    {menuItem.label}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       </nav>
     </header>

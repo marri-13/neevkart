@@ -23,6 +23,39 @@ type FormErrors = {
   [key in keyof FormData]?: string;
 };
 
+type RazorpayPaymentResponse = {
+  razorpay_payment_id: string;
+  razorpay_order_id: string;
+  razorpay_signature: string;
+};
+
+type RazorpayOptions = {
+  key: string;
+  amount: number;
+  currency: string;
+  name: string;
+  description: string;
+  customer_notify: number;
+  prefill: {
+    name: string;
+    email: string;
+    contact: string;
+  };
+  notes: Record<string, string>;
+  handler: (response: RazorpayPaymentResponse) => Promise<void>;
+  modal: {
+    ondismiss: () => void;
+  };
+};
+
+type RazorpayConstructor = new (options: RazorpayOptions) => {
+  open: () => void;
+};
+
+type WindowWithRazorpay = Window & {
+  Razorpay: RazorpayConstructor;
+};
+
 export default function CheckoutPage() {
   const router = useRouter();
   const { items, getTotalPrice, clearCart } = useCart();
@@ -98,7 +131,7 @@ export default function CheckoutPage() {
       script.src = "https://checkout.razorpay.com/v1/checkout.js";
       script.async = true;
       script.onload = () => {
-        const options = {
+        const options: RazorpayOptions = {
           key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_test_1DP5mmOlF5G5ag",
           amount: Math.round(finalPrice * 100),
           currency: "INR",
@@ -116,11 +149,7 @@ export default function CheckoutPage() {
             state: formData.state,
             pincode: formData.pincode,
           },
-          handler: async (response: {
-            razorpay_payment_id: string;
-            razorpay_order_id: string;
-            razorpay_signature: string;
-          }) => {
+          handler: async (response) => {
             console.log("Payment successful:", response);
             clearCart();
             router.push(`/order-confirmation?payment_id=${response.razorpay_payment_id}`);
@@ -133,7 +162,7 @@ export default function CheckoutPage() {
           },
         };
 
-        const rzp = new (window as any).Razorpay(options);
+        const rzp = new (window as unknown as WindowWithRazorpay).Razorpay(options);
         rzp.open();
         setLoading(false);
       };
