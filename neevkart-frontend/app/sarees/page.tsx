@@ -11,7 +11,7 @@ import Footer from "../components/home/Footer";
 type SortOption = "newest" | "price-low" | "price-high" | "popular";
 
 const categories = ["All", "Silk Sarees", "Cotton Sarees", "Wedding Collection", "Festive Wear", "New Arrivals"];
-const fabricTypes = ["Silk", "Cotton", "Brocade", "Organza", "Silk Cotton", "Embroidered Silk"];
+const fabricTypes = ["Silk", "Cotton", "Brocade", "Organza", "Silk Cotton", "Embroidered Silk", "Kota", "Khadi", "Linen", "Crepe", "Pattu", "Tissue", "Chiffon"];
 const priceRanges = [
   { label: "All Prices", min: 0, max: Infinity },
   { label: "Under Rs. 5,000", min: 0, max: 5000 },
@@ -31,14 +31,41 @@ const categoryQueryMap: Record<string, string> = {
 
 const typeLabels: Record<string, string> = {
   summer: "Summer Sarees",
+  "summer-wedding": "Summer Wedding Sarees",
+  formal: "Formal Sarees",
+  casual: "Casual Sarees",
+  festive: "Festive Sarees",
+  bridal: "Bridal Sarees",
   "party-wear": "Party Wear Sarees",
+  haldi: "Haldi Sarees",
+  engagement: "Engagement Sarees",
+  "farewell-graduation": "Farewell & Graduation Sarees",
   "daily-wear": "Daily Wear Sarees",
   designer: "Designer Sarees",
   kanjivaram: "Kanjivaram Silk Sarees",
+  kanchipuram: "Kanchipuram Sarees",
   banarasi: "Banarasi Sarees",
+  paithani: "Paithani Sarees",
+  kota: "Kota Sarees",
+  khadi: "Khadi Sarees",
+  linen: "Linen Sarees",
+  crepe: "Crepe Sarees",
+  pattu: "Pattu Sarees",
+  tissue: "Tissue Sarees",
+  chiffon: "Chiffon Sarees",
+  white: "White Sarees",
+  pastel: "Pastel Sarees",
+  pink: "Pink Sarees",
+  blue: "Blue Sarees",
+  yellow: "Yellow Sarees",
+  black: "Black Sarees",
+  red: "Red Sarees",
+  gold: "Gold Sarees",
+  green: "Green Sarees",
+  peach: "Peach Sarees",
+  multicoloured: "Multicoloured Sarees",
   "silk-cotton": "Silk Cotton Sarees",
   chanderi: "Chanderi Cotton Sarees",
-  bridal: "Bridal Sarees",
   traditional: "Traditional Sarees",
 };
 

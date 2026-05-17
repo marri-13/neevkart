@@ -44,9 +44,9 @@ export default function Hero() {
   const active = slides[activeSlide];
 
   return (
-    <section className="bg-[#fffaf5] pb-10 pt-6 md:pb-16">
+    <section className="bg-[#fffaf5] pb-20 pt-8 md:pb-28">
       <div className="luxury-container">
-        <div className="relative h-[560px] overflow-hidden rounded-[2rem] bg-[#f4e6d8] shadow-[0_28px_80px_rgba(43,33,27,0.16)] ring-1 ring-[#eadfd6] md:h-[72vh] md:min-h-[650px]">
+        <div className="relative h-[560px] overflow-hidden rounded-[2rem] bg-[#f4e6d8] shadow-[0_28px_80px_rgba(43,33,27,0.16)] ring-1 ring-[#eadfd6] md:h-[72vh] md:min-h-[650px] animate-luxury-rise">
           {slides.map((slide, index) => (
             <Image
               key={slide.image}
@@ -62,14 +62,12 @@ export default function Hero() {
           ))}
 
           <div className="absolute inset-0 bg-gradient-to-r from-[#160f0b]/78 via-[#160f0b]/38 to-transparent" />
-          <div className="absolute inset-x-8 top-8 h-px bg-gradient-to-r from-[#f4d995]/70 via-white/20 to-transparent" />
-
           <div className="absolute inset-0 flex items-center">
             <div className="ml-7 max-w-[520px] text-white sm:ml-12 md:ml-20">
               <p className="mb-5 text-[10px] font-semibold uppercase tracking-[0.34em] text-[#f4d995]">
                 {active.eyebrow}
               </p>
-              <h1 className="font-display text-[2.45rem] font-medium leading-[1.05] md:text-[4.3rem]">
+              <h1 className="font-display text-[2.35rem] font-medium leading-[1.08] md:text-[3.9rem]">
                 {active.title}
               </h1>
               <p className="mt-6 max-w-[430px] text-base leading-8 text-white/86">{active.text}</p>

@@ -46,3 +46,24 @@ a {
   width: min(100% - clamp(2rem, 6vw, 6rem), 1380px);
   margin-inline: auto;
 }
+
+@keyframes luxury-rise {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-luxury-rise {
+  animation: luxury-rise 800ms ease both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-luxury-rise {
+    animation: none;
+  }
+}
