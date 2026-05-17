@@ -1,0 +1,47 @@
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Poppins:wght@400;500;600&display=swap");
+@import "tailwindcss";
+
+:root {
+  --nk-ink: #241c18;
+  --nk-coffee: #2b211b;
+  --nk-caramel: #caa66a;
+  --nk-ivory: #fbf6ee;
+  --nk-rose: #9a6b63;
+  --nk-sage: #465849;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  background: var(--nk-ivory);
+}
+
+body {
+  min-height: 100vh;
+  background: #ffffff;
+  color: var(--nk-ink);
+  font-family: "Poppins", Arial, Helvetica, sans-serif;
+}
+
+button,
+a {
+  cursor: pointer;
+}
+
+::selection {
+  background: rgba(202, 166, 106, 0.28);
+}
+
+.font-display {
+  font-family: "Playfair Display", Georgia, serif;
+}
+
+.luxury-container {
+  width: calc(100% - clamp(2rem, 4vw, 5rem));
+  margin-inline: auto;
+}
