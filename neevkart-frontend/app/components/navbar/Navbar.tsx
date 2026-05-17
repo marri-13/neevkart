@@ -69,11 +69,13 @@ const navItems = [
 export default function Navbar() {
   return (
     <header className="sticky top-0 z-50 bg-white text-[#2b211b] shadow-[0_8px_28px_rgba(43,33,27,0.08)]">
+
       <div className="bg-[#a51d49] px-4 py-2 text-center text-[11px] font-semibold text-white">
         Enjoy 10% off on your first order. Secure online payments only.
       </div>
 
       <div className="luxury-container flex min-h-16 items-center justify-between gap-4 py-3">
+
         <Link href="/" className="font-display text-3xl font-semibold text-[#a51d49]" aria-label="NeevKart home">
           NeevKart
         </Link>
@@ -91,18 +93,21 @@ export default function Navbar() {
         </label>
 
         <div className="flex items-center gap-3 text-[#3d3029]">
-          <button className="grid h-9 w-9 place-items-center rounded-full transition hover:bg-[#fff1f5] hover:text-[#a51d49]" aria-label="Search">
+
+          <button className="grid h-9 w-9 place-items-center rounded-full transition hover:bg-[#fff1f5] hover:text-[#a51d49] md:hidden" aria-label="Search">
             <svg aria-hidden="true" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7" viewBox="0 0 24 24">
               <circle cx="11" cy="11" r="7" />
               <path d="m20 20-3.8-3.8" />
             </svg>
           </button>
+
           <Link href="/login" className="hidden h-9 w-9 place-items-center rounded-full transition hover:bg-[#fff1f5] hover:text-[#a51d49] sm:grid" aria-label="Account">
             <svg aria-hidden="true" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7" viewBox="0 0 24 24">
               <circle cx="12" cy="8" r="3.2" />
               <path d="M5 20a7 7 0 0 1 14 0" />
             </svg>
           </Link>
+
           <Link href="/cart" className="relative grid h-9 w-9 place-items-center rounded-full transition hover:bg-[#fff1f5] hover:text-[#a51d49]" aria-label="Cart">
             <svg aria-hidden="true" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7" viewBox="0 0 24 24">
               <path d="M6.5 8.5h11l-.9 10.5H7.4L6.5 8.5Z" />
@@ -110,52 +115,44 @@ export default function Navbar() {
             </svg>
             <CartCount />
           </Link>
+
           <button className="grid h-9 w-9 place-items-center rounded-full lg:hidden" aria-label="Menu">
             <svg aria-hidden="true" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7" viewBox="0 0 24 24">
               <path d="M4 7h16M4 12h16M4 17h16" />
             </svg>
           </button>
+
         </div>
       </div>
 
       <nav className="border-t border-[#f0e2d8] bg-white">
-
         <div className="luxury-container hidden h-14 items-stretch justify-center gap-3 text-[12px] font-semibold uppercase tracking-[0.13em] text-[#56463e] lg:flex">
+
           {navItems.map((item) => (
             <div key={item.label} className="group relative flex items-center">
+
               <Link href={item.href} className="flex h-14 items-center rounded-full px-5 transition hover:bg-[#fff7f9] hover:text-[#a51d49]">
                 {item.label}
               </Link>
+
               <div className="invisible absolute left-1/2 top-full z-50 w-72 -translate-x-1/2 rounded-b-[1.5rem] border border-[#f0e2d8] bg-white/98 p-5 opacity-0 shadow-[0_24px_60px_rgba(43,33,27,0.16)] backdrop-blur transition group-hover:visible group-hover:opacity-100">
                 <div className="mb-3 border-b border-[#f4e8de] px-2 pb-3 text-[10px] font-bold uppercase tracking-[0.22em] text-[#a51d49]">
-=======
-        <div className="luxury-container hidden h-11 items-stretch justify-center gap-2 text-[12px] font-medium text-[#56463e] lg:flex">
-          {navItems.map((item) => (
-            <div key={item.label} className="group relative flex items-center">
-              <Link href={item.href} className="flex h-11 items-center px-4 transition hover:text-[#a51d49]">
-                {item.label}
-              </Link>
-              <div className="invisible absolute left-1/2 top-full z-50 w-56 -translate-x-1/2 rounded-b-lg border border-[#f0e2d8] bg-white p-3 opacity-0 shadow-[0_18px_35px_rgba(43,33,27,0.14)] transition group-hover:visible group-hover:opacity-100">
-                <div className="mb-2 border-b border-[#f4e8de] px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#a51d49]">
-
                   {item.label} Types
                 </div>
                 {item.menu.map((menuItem) => (
                   <Link
                     key={menuItem.href}
                     href={menuItem.href}
-
                     className="block rounded-xl px-3 py-3 text-[12px] font-medium normal-case tracking-normal text-[#56463e] transition hover:bg-[#fff1f5] hover:pl-4 hover:text-[#a51d49]"
-=======
-                    className="block rounded-md px-3 py-2 text-[12px] text-[#56463e] transition hover:bg-[#fff1f5] hover:text-[#a51d49]"
-
                   >
                     {menuItem.label}
                   </Link>
                 ))}
               </div>
+
             </div>
           ))}
+
         </div>
       </nav>
     </header>

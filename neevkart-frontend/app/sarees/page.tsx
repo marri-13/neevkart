@@ -111,7 +111,6 @@ function SareesListing({
   const [sortBy, setSortBy] = useState<SortOption>("newest");
   const [showFilters, setShowFilters] = useState(false);
 
-
   const pageTitle = useMemo(() => {
     if (queryType) {
       return typeLabels[normalize(queryType)] ?? `${toTitleCase(normalize(queryType))} Sarees`;
@@ -157,6 +156,7 @@ function SareesListing({
     <>
       <Navbar />
       <main className="min-h-screen bg-[#fffaf5]">
+
         {/* Breadcrumb */}
         <div className="border-b border-[#eadfd6] bg-white/70">
           <div className="luxury-container py-4">
@@ -179,26 +179,23 @@ function SareesListing({
         </div>
 
         {/* Header */}
-
         <div className="bg-gradient-to-br from-white via-[#fff8f2] to-[#f6e8dc]">
           <div className="luxury-container py-14 md:py-20">
-            <p className="mb-4 text-[10px] font-bold uppercase tracking-[0.3em] text-[#a51d49]">NeevKart Curated Collection</p>
-            <h1 className="font-display text-4xl font-medium text-[#1f1712] md:text-6xl">{pageTitle}</h1>
+            <p className="mb-4 text-[10px] font-bold uppercase tracking-[0.3em] text-[#a51d49]">
+              NeevKart Curated Collection
+            </p>
+            <h1 className="font-display text-4xl font-medium text-[#1f1712] md:text-6xl">
+              {pageTitle}
+            </h1>
             <p className="mt-5 max-w-2xl text-sm leading-7 text-[#7f6758] md:text-base">
               Browse a refined selection of sarees filtered by collection, fabric, and occasion with more room to view every detail.
-=======
-        <div className="border-b border-[#eadfd6]">
-          <div className="luxury-container py-8">
-            <h1 className="text-3xl font-medium text-[#1f1712] md:text-4xl">{pageTitle}</h1>
-            <p className="mt-2 text-[#8a7062]">
-              Browse only the sarees that match this collection, material, or occasion.
-
             </p>
           </div>
         </div>
 
         <div className="luxury-container py-12 md:py-16">
           <div className="grid gap-10 lg:grid-cols-[290px_1fr]">
+
             {/* Filters Sidebar */}
             <div
               className={`lg:col-span-1 ${
@@ -304,6 +301,7 @@ function SareesListing({
 
             {/* Main Content */}
             <div className="min-w-0">
+
               {/* Toolbar */}
               <div className="mb-10 flex flex-col items-center justify-between gap-5 rounded-[1.4rem] border border-[#eadfd6] bg-white px-6 py-5 shadow-[0_14px_38px_rgba(43,33,27,0.05)] sm:flex-row">
                 <p className="text-sm text-[#8a7062]">
@@ -365,6 +363,7 @@ function SareesListing({
             <p>✓ All sales are final. No return or exchange.</p>
           </div>
         </div>
+
       </main>
       <Footer />
     </>
