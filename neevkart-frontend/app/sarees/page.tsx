@@ -1,19 +1,36 @@
 "use client";
 
-import { Suspense, useMemo, useState } from "react";
+import { Suspense, useMemo, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import ProductCard from "../components/product/ProductCard";
-import { Product, products } from "@/lib/products";
 import Navbar from "../components/navbar/Navbar";
 import Footer from "../components/home/Footer";
+import { products, type Product } from "@/lib/products";
 
 type SortOption = "newest" | "price-low" | "price-high" | "popular";
 
 const categories = ["All", "Silk Sarees", "Cotton Sarees", "Wedding Collection", "Festive Wear", "New Arrivals"];
-const fabricTypes = ["Silk", "Cotton", "Brocade", "Organza", "Silk Cotton", "Embroidered Silk", "Kota", "Khadi", "Linen", "Crepe", "Pattu", "Tissue", "Chiffon"];
+const fabricTypes = [
+  "Silk",
+  "Cotton",
+  "Brocade",
+  "Organza",
+  "Silk Cotton",
+  "Embroidered Silk",
+  "Banarasi Silk",
+  "Linen Cotton",
+  "Kota",
+  "Khadi",
+  "Linen",
+  "Crepe",
+  "Pattu",
+  "Tissue",
+  "Chiffon",
+];
 const priceRanges = [
   { label: "All Prices", min: 0, max: Infinity },
+  { label: "Under Rs. 2,000", min: 0, max: 2000 },
   { label: "Under Rs. 5,000", min: 0, max: 5000 },
   { label: "Rs. 5,000 - Rs. 10,000", min: 5000, max: 10000 },
   { label: "Rs. 10,000 - Rs. 20,000", min: 10000, max: 20000 },
@@ -46,6 +63,7 @@ const typeLabels: Record<string, string> = {
   kanchipuram: "Kanchipuram Sarees",
   banarasi: "Banarasi Sarees",
   paithani: "Paithani Sarees",
+  patola: "Patola Sarees",
   kota: "Kota Sarees",
   khadi: "Khadi Sarees",
   linen: "Linen Sarees",
@@ -67,6 +85,22 @@ const typeLabels: Record<string, string> = {
   "silk-cotton": "Silk Cotton Sarees",
   chanderi: "Chanderi Cotton Sarees",
   traditional: "Traditional Sarees",
+  rajasthan: "Rajasthan Sarees",
+  bengal: "Bengal Sarees",
+  bhagalpuri: "Bhagalpuri Sarees",
+  gujarati: "Gujarati Sarees",
+  maheshwari: "Maheshwari Sarees",
+  "south-indian": "South Indian Sarees",
+  floral: "Floral Sarees",
+  handloom: "Handloom Sarees",
+  bandhani: "Bandhani Sarees",
+  chikankari: "Chikankari Sarees",
+  plain: "Plain Sarees",
+  ajrakh: "Ajrakh Sarees",
+  embroidery: "Embroidery Sarees",
+  printed: "Printed Sarees",
+  jamdani: "Jamdani Sarees",
+  kalamkari: "Kalamkari Sarees",
 };
 
 function toTitleCase(value: string) {
@@ -99,35 +133,51 @@ function fabricFromQuery(value: string | null) {
   return fabricTypes.find((fabric) => normalize(fabric) === normalized) ?? toTitleCase(normalized);
 }
 
+function productSearchText(product: Product) {
+  return [
+    product.name,
+    product.category,
+    product.fabric,
+    product.occasion,
+    product.color,
+    product.tag ?? "",
+    product.description,
+    ...product.details,
+    ...(product.collections ?? []),
+  ]
+    .map(normalize)
+    .join("-");
+}
+
 function productMatchesType(product: Product, type: string | null) {
   if (!type) {
     return true;
   }
 
   const normalizedType = normalize(type);
-  const searchableValues = [
-    product.name,
-    product.category,
-    product.fabric,
-    product.occasion,
-    product.tag ?? "",
-    ...(product.collections ?? []),
-  ].map(normalize);
 
-  return searchableValues.some((value) => value === normalizedType || value.includes(normalizedType));
+  if (normalizedType.startsWith("under-")) {
+    const max = Number(normalizedType.replace("under-", ""));
+    return Number.isFinite(max) ? product.price <= max : true;
+  }
+
+  return productSearchText(product).includes(normalizedType);
 }
 
 function SareesListing({
   queryCategory,
   queryMaterial,
   queryType,
+  querySearch,
 }: {
   queryCategory: string | null;
   queryMaterial: string | null;
   queryType: string | null;
+  querySearch: string | null;
 }) {
   const initialCategory = categoryFromQuery(queryCategory);
   const initialFabric = fabricFromQuery(queryMaterial);
+  const normalizedSearch = normalize(querySearch ?? "");
 
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const [selectedFabric, setSelectedFabric] = useState<string | null>(initialFabric);
@@ -139,6 +189,10 @@ function SareesListing({
   const [showFilters, setShowFilters] = useState(false);
 
   const pageTitle = useMemo(() => {
+    if (querySearch) {
+      return `Search results for "${querySearch}"`;
+    }
+
     if (queryType) {
       return typeLabels[normalize(queryType)] ?? `${toTitleCase(normalize(queryType))} Sarees`;
     }
@@ -152,41 +206,51 @@ function SareesListing({
     }
 
     return "Sarees Collection";
-  }, [queryType, selectedCategory, selectedFabric]);
+  }, [querySearch, queryType, selectedCategory, selectedFabric]);
 
   const filteredProducts = useMemo(() => {
-    let result = [...products];
+    let result = products.filter((product) => product.category !== "Dress Materials");
 
     if (selectedCategory !== "All") {
-      result = result.filter((p) => p.category === selectedCategory);
+      result = result.filter((product) => product.category === selectedCategory);
     }
 
     if (selectedFabric) {
-      result = result.filter((p) => normalize(p.fabric).includes(normalize(selectedFabric)));
+      result = result.filter((product) => normalize(product.fabric).includes(normalize(selectedFabric)));
     }
 
-    result = result.filter((p) => productMatchesType(p, queryType));
-    result = result.filter((p) => p.price >= selectedPriceRange.min && p.price <= selectedPriceRange.max);
+    result = result.filter((product) => productMatchesType(product, queryType));
+
+    if (normalizedSearch) {
+      result = result.filter((product) => productSearchText(product).includes(normalizedSearch));
+    }
+
+    result = result.filter((product) => product.price >= selectedPriceRange.min && product.price <= selectedPriceRange.max);
 
     if (sortBy === "price-low") {
       result.sort((a, b) => a.price - b.price);
     } else if (sortBy === "price-high") {
       result.sort((a, b) => b.price - a.price);
     } else if (sortBy === "popular") {
-      result.sort((a, b) => (b.tag === "Bestseller" ? 1 : -1));
+      result.sort((a, b) => Number(b.tag === "Bestseller") - Number(a.tag === "Bestseller"));
     }
 
     return result;
-  }, [selectedCategory, selectedFabric, selectedPriceRange, sortBy, queryType]);
+  }, [selectedCategory, selectedFabric, selectedPriceRange, sortBy, queryType, normalizedSearch]);
+
+  const resetFilters = () => {
+    setSelectedCategory("All");
+    setSelectedFabric(null);
+    setSelectedPriceRange({ min: 0, max: Infinity });
+    setSortBy("newest");
+  };
 
   return (
     <>
       <Navbar />
-      <main className="min-h-screen bg-[#fffaf5]">
-
-        {/* Breadcrumb */}
-        <div className="border-b border-[#eadfd6] bg-white/70">
-          <div className="luxury-container py-4">
+      <main className="min-h-screen bg-white">
+        <div className="border-b border-[#eadfd6] bg-[#fffaf5]">
+          <div className="luxury-container py-5">
             <div className="flex items-center gap-2 text-sm text-[#8a7062]">
               <Link href="/" className="hover:text-[#1f1712]">
                 Home
@@ -205,195 +269,160 @@ function SareesListing({
           </div>
         </div>
 
-        {/* Header */}
-        <div className="bg-gradient-to-br from-white via-[#fff8f2] to-[#f6e8dc]">
+        <section className="bg-[#fbf8f4]">
           <div className="luxury-container py-14 md:py-20">
-            <p className="mb-4 text-[10px] font-bold uppercase tracking-[0.3em] text-[#a51d49]">
-              NeevKart Curated Collection
-            </p>
-            <h1 className="font-display text-4xl font-medium text-[#1f1712] md:text-6xl">
-              {pageTitle}
-            </h1>
-            <p className="mt-5 max-w-2xl text-sm leading-7 text-[#7f6758] md:text-base">
-              Browse a refined selection of sarees filtered by collection, fabric, and occasion with more room to view every detail.
-            </p>
+            <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+              <div>
+                <p className="mb-4 text-[11px] font-bold uppercase tracking-[0.32em] text-[#a51d49]">
+                  NeevKart Saree House
+                </p>
+                <h1 className="font-display text-4xl font-medium leading-tight text-[#1f1712] md:text-5xl">
+                  {pageTitle}
+                </h1>
+              </div>
+              <p className="max-w-xl text-sm leading-7 text-[#7f6758]">
+                Explore premium drapes with calmer spacing, larger imagery, and practical filters for fabric, price, and occasion.
+              </p>
+            </div>
           </div>
-        </div>
+        </section>
 
-        <div className="luxury-container py-12 md:py-16">
-          <div className="grid gap-10 lg:grid-cols-[290px_1fr]">
-
-            {/* Filters Sidebar */}
-            <div
-              className={`lg:col-span-1 ${
-                showFilters ? "block" : "hidden lg:block"
-              } rounded-[1.5rem] border border-[#eadfd6] bg-white p-6 shadow-[0_18px_45px_rgba(43,33,27,0.06)] lg:sticky lg:top-40 lg:self-start`}
+        <section className="luxury-container py-14 md:py-20">
+          <div className="mb-10 flex flex-col gap-5 border-b border-[#eadfd6] pb-8 lg:flex-row lg:items-center lg:justify-between">
+            <button
+              onClick={() => setShowFilters((current) => !current)}
+              className="w-fit rounded-full border border-[#a51d49]/35 px-6 py-3 text-xs font-bold uppercase tracking-[0.18em] text-[#a51d49] lg:hidden"
             >
+              Filters
+            </button>
+
+            <div className="flex flex-wrap items-center gap-4 text-sm text-[#7f6758]">
+              <span>
+                <strong className="font-semibold text-[#1f1712]">{filteredProducts.length}</strong> products found
+              </span>
+              {querySearch && <span>Search: {querySearch}</span>}
+            </div>
+
+            <label className="flex items-center gap-4 text-[12px] font-bold uppercase tracking-[0.2em] text-[#1f1712]">
+              Sort By
+              <select
+                value={sortBy}
+                onChange={(event) => setSortBy(event.target.value as SortOption)}
+                className="h-12 min-w-56 rounded-md border border-[#d4c4b0] bg-white px-5 text-sm font-medium normal-case tracking-normal text-[#1f1712] focus:border-[#a51d49] focus:outline-none"
+              >
+                <option value="newest">Recommended</option>
+                <option value="price-low">Price: Low to High</option>
+                <option value="price-high">Price: High to Low</option>
+                <option value="popular">Popular</option>
+              </select>
+            </label>
+          </div>
+
+          <div className="grid gap-12 lg:grid-cols-[320px_minmax(0,1fr)] xl:gap-16">
+            <aside className={`${showFilters ? "block" : "hidden lg:block"} lg:sticky lg:top-44 lg:self-start`}>
               <div className="mb-8 flex items-center justify-between">
-                <h3 className="text-lg font-medium text-[#1f1712]">Filters</h3>
-                <button
-                  onClick={() => setShowFilters(false)}
-                  className="text-[#8a7062] lg:hidden"
-                >
-                  ✕
+                <h2 className="text-[13px] font-bold uppercase tracking-[0.28em] text-[#1f1712]">Filter By</h2>
+                <button onClick={resetFilters} className="text-sm font-medium text-[#8a7062] hover:text-[#a51d49]">
+                  Reset
                 </button>
               </div>
 
-              {/* Category Filter */}
-              <div className="mb-9">
-                <h4 className="mb-4 text-sm font-semibold uppercase tracking-[0.1em] text-[#1f1712]">
-                  Category
-                </h4>
-                <div className="space-y-3.5">
-                  {categories.map((cat) => (
-                    <label key={cat} className="flex cursor-pointer items-center gap-3 rounded-xl px-2 py-1.5 transition hover:bg-[#fff7f9]">
+              <div className="border-t border-[#eadfd6]">
+                <FilterGroup title="Category">
+                  {categories.map((category) => (
+                    <label key={category} className="flex cursor-pointer items-center gap-3 py-2.5 text-sm text-[#6f5948]">
                       <input
                         type="radio"
                         name="category"
-                        checked={selectedCategory === cat}
-                        onChange={() => setSelectedCategory(cat)}
-                        className="h-4 w-4 cursor-pointer accent-[#a51d49]"
+                        checked={selectedCategory === category}
+                        onChange={() => setSelectedCategory(category)}
+                        className="h-4 w-4 accent-[#a51d49]"
                       />
-                      <span className="text-sm text-[#6f5948]">{cat}</span>
+                      {category}
                     </label>
                   ))}
-                </div>
-              </div>
+                </FilterGroup>
 
-              {/* Price Range Filter */}
-              <div className="mb-9">
-                <h4 className="mb-4 text-sm font-semibold uppercase tracking-[0.1em] text-[#1f1712]">
-                  Price
-                </h4>
-                <div className="space-y-3.5">
+                <FilterGroup title="Price Range">
                   {priceRanges.map((range) => (
-                    <label key={range.label} className="flex cursor-pointer items-center gap-3 rounded-xl px-2 py-1.5 transition hover:bg-[#fff7f9]">
+                    <label key={range.label} className="flex cursor-pointer items-center gap-3 py-2.5 text-sm text-[#6f5948]">
                       <input
                         type="radio"
                         name="price"
-                        checked={
-                          selectedPriceRange.min === range.min && selectedPriceRange.max === range.max
-                        }
+                        checked={selectedPriceRange.min === range.min && selectedPriceRange.max === range.max}
                         onChange={() => setSelectedPriceRange({ min: range.min, max: range.max })}
-                        className="h-4 w-4 cursor-pointer accent-[#a51d49]"
+                        className="h-4 w-4 accent-[#a51d49]"
                       />
-                      <span className="text-sm text-[#6f5948]">{range.label}</span>
+                      {range.label}
                     </label>
                   ))}
-                </div>
-              </div>
+                </FilterGroup>
 
-              {/* Fabric Filter */}
-              <div className="mb-9">
-                <h4 className="mb-4 text-sm font-semibold uppercase tracking-[0.1em] text-[#1f1712]">
-                  Fabric
-                </h4>
-                <div className="space-y-3.5">
-                  <label className="flex cursor-pointer items-center gap-3 rounded-xl px-2 py-1.5 transition hover:bg-[#fff7f9]">
+                <FilterGroup title="Fabric">
+                  <label className="flex cursor-pointer items-center gap-3 py-2.5 text-sm text-[#6f5948]">
                     <input
-                      type="checkbox"
+                      type="radio"
+                      name="fabric"
                       checked={selectedFabric === null}
                       onChange={() => setSelectedFabric(null)}
-                      className="h-4 w-4 cursor-pointer accent-[#a51d49]"
+                      className="h-4 w-4 accent-[#a51d49]"
                     />
-                    <span className="text-sm text-[#6f5948]">All Fabrics</span>
+                    All Fabrics
                   </label>
                   {fabricTypes.map((fabric) => (
-                    <label key={fabric} className="flex cursor-pointer items-center gap-3 rounded-xl px-2 py-1.5 transition hover:bg-[#fff7f9]">
+                    <label key={fabric} className="flex cursor-pointer items-center gap-3 py-2.5 text-sm text-[#6f5948]">
                       <input
-                        type="checkbox"
+                        type="radio"
+                        name="fabric"
                         checked={selectedFabric === fabric}
-                        onChange={() => setSelectedFabric(selectedFabric === fabric ? null : fabric)}
-                        className="h-4 w-4 cursor-pointer accent-[#a51d49]"
+                        onChange={() => setSelectedFabric(fabric)}
+                        className="h-4 w-4 accent-[#a51d49]"
                       />
-                      <span className="text-sm text-[#6f5948]">{fabric}</span>
+                      {fabric}
                     </label>
                   ))}
-                </div>
+                </FilterGroup>
               </div>
+            </aside>
 
-              {/* Clear Filters */}
-              <button
-                onClick={() => {
-                  setSelectedCategory("All");
-                  setSelectedFabric(null);
-                  setSelectedPriceRange({ min: 0, max: Infinity });
-                  setSortBy("newest");
-                }}
-                className="w-full rounded-full border border-[#a51d49]/35 px-5 py-3 text-xs font-bold uppercase tracking-[0.16em] text-[#a51d49] transition hover:bg-[#a51d49] hover:text-white"
-              >
-                Clear All Filters
-              </button>
-            </div>
-
-            {/* Main Content */}
             <div className="min-w-0">
-
-              {/* Toolbar */}
-              <div className="mb-10 flex flex-col items-center justify-between gap-5 rounded-[1.4rem] border border-[#eadfd6] bg-white px-6 py-5 shadow-[0_14px_38px_rgba(43,33,27,0.05)] sm:flex-row">
-                <p className="text-sm text-[#8a7062]">
-                  Showing <span className="font-semibold text-[#1f1712]">{filteredProducts.length}</span> products
-                </p>
-
-                <div className="flex w-full items-center gap-3 sm:w-auto">
-                  <button
-                    onClick={() => setShowFilters(!showFilters)}
-                    className="flex items-center gap-2 rounded-full border border-[#a51d49]/35 px-5 py-2.5 text-sm font-semibold text-[#a51d49] lg:hidden"
-                  >
-                    ⚙ Filters
-                  </button>
-
-                  <select
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value as SortOption)}
-                    className="flex-1 rounded-full border border-[#d4c4b0] bg-white px-5 py-2.5 text-sm text-[#1f1712] focus:border-[#a51d49] focus:outline-none sm:flex-none"
-                  >
-                    <option value="newest">Newest</option>
-                    <option value="price-low">Price: Low to High</option>
-                    <option value="price-high">Price: High to Low</option>
-                    <option value="popular">Popular</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Products Grid */}
               {filteredProducts.length > 0 ? (
-                <div className="grid gap-8 sm:grid-cols-2 xl:grid-cols-3">
+                <div className="grid gap-x-10 gap-y-14 sm:grid-cols-2 xl:grid-cols-3">
                   {filteredProducts.map((product) => (
                     <ProductCard key={product.id} product={product} />
                   ))}
                 </div>
               ) : (
-                <div className="py-16 text-center">
-                  <p className="mb-4 text-lg text-[#8a7062]">No sarees found matching your filters.</p>
-                  <button
-                    onClick={() => {
-                      setSelectedCategory("All");
-                      setSelectedFabric(null);
-                      setSelectedPriceRange({ min: 0, max: Infinity });
-                    }}
-                    className="text-[#a51d49] underline hover:text-[#8a1c39]"
-                  >
+                <div className="rounded-[1rem] border border-[#eadfd6] bg-[#fffaf5] px-8 py-16 text-center">
+                  <p className="text-lg text-[#6f5948]">No products found for this selection.</p>
+                  <button onClick={resetFilters} className="mt-5 text-sm font-semibold text-[#a51d49] underline">
                     Reset filters
                   </button>
                 </div>
               )}
             </div>
           </div>
-        </div>
+        </section>
 
-        {/* Policy Banner */}
-        <div className="border-t border-[#eadfd6] bg-white">
+        <div className="border-t border-[#eadfd6] bg-[#fffaf5]">
           <div className="luxury-container grid gap-4 py-10 text-center text-sm text-[#6f5948] md:grid-cols-3">
-            <p>✓ Secure online payments only</p>
-            <p>✓ No Cash on Delivery (COD)</p>
-            <p>✓ All sales are final. No return or exchange.</p>
+            <p>Secure online payments only</p>
+            <p>No Cash on Delivery (COD)</p>
+            <p>All sales are final. No return or exchange.</p>
           </div>
         </div>
-
       </main>
       <Footer />
     </>
+  );
+}
+
+function FilterGroup({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <div className="border-b border-[#eadfd6] py-7">
+      <h3 className="mb-5 text-[13px] font-semibold uppercase tracking-[0.2em] text-[#8a3d08]">{title}</h3>
+      <div className="grid gap-1">{children}</div>
+    </div>
   );
 }
 
@@ -406,6 +435,7 @@ function SareesContent() {
       queryCategory={searchParams.get("category")}
       queryMaterial={searchParams.get("material")}
       queryType={searchParams.get("type")}
+      querySearch={searchParams.get("search")}
     />
   );
 }

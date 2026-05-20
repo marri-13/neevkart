@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Poppins:wght@400;500;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap");
 @import "tailwindcss";
 
 :root {
@@ -39,11 +39,11 @@ a {
 }
 
 .font-display {
-  font-family: "Playfair Display", Georgia, serif;
+  font-family: "Poppins", Arial, Helvetica, sans-serif;
 }
 
 .luxury-container {
-  width: min(100% - clamp(2rem, 6vw, 6rem), 1380px);
+  width: min(100% - clamp(2rem, 9vw, 13rem), 1720px);
   margin-inline: auto;
 }
 
@@ -62,8 +62,47 @@ a {
   animation: luxury-rise 800ms ease both;
 }
 
+.filter-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #c9a995 #fff7ef;
+}
+
+.filter-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.filter-scroll::-webkit-scrollbar-track {
+  background: #fff7ef;
+  border-radius: 999px;
+}
+
+.filter-scroll::-webkit-scrollbar-thumb {
+  background: #c9a995;
+  border-radius: 999px;
+}
+
+.sold-out-sticker {
+  clip-path: polygon(7% 0, 100% 0, 93% 100%, 0 100%);
+  transform: rotate(-6deg);
+  animation: sold-out-sticker 2.4s ease-in-out infinite;
+}
+
+@keyframes sold-out-sticker {
+  0%,
+  100% {
+    transform: rotate(-6deg) translateY(0);
+  }
+  50% {
+    transform: rotate(-3deg) translateY(-2px);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-luxury-rise {
+    animation: none;
+  }
+
+  .sold-out-sticker {
     animation: none;
   }
 }

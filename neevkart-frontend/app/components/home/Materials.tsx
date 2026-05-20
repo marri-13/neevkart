@@ -33,10 +33,10 @@ export default function Materials() {
   ];
 
   return (
-    <section id="materials" className="bg-white py-28 md:py-36">
+    <section id="materials" className="bg-white py-32 md:py-44">
       <div className="luxury-container">
 
-        <div className="mx-auto mb-16 max-w-2xl text-center">
+        <div className="mx-auto mb-24 max-w-2xl text-center">
           <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.28em] text-[#a51d49]">
             Dress Material Collection
           </p>
@@ -48,7 +48,7 @@ export default function Materials() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-4">
           {materials.map((material) => (
             <Link
               key={material.name}
@@ -78,7 +78,7 @@ export default function Materials() {
           ))}
         </div>
 
-        <div className="mt-24 flex justify-center gap-2">
+        <div className="mt-32 flex justify-center gap-2">
           <span className="h-px w-16 bg-[#8c8178]" />
           <span className="h-px w-8 bg-[#d8c8bd]" />
         </div>

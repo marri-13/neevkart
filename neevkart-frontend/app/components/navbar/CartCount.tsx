@@ -7,7 +7,7 @@ export default function CartCount() {
   const count = getTotalItems();
 
   return (
-    <span className="absolute right-0 top-0 grid h-4 w-4 place-items-center rounded-full bg-[#a51d49] text-[9px] font-semibold text-white">
+    <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-[#c44778] text-[10px] font-semibold text-white">
       {count}
     </span>
   );

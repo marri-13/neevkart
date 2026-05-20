@@ -20,24 +20,24 @@ export default function Categories() {
   ];
 
   return (
-    <section id="categories" className="bg-white py-28 md:py-36">
+    <section id="categories" className="bg-white py-32 md:py-44">
       <div className="luxury-container">
 
-        <div className="mx-auto mb-16 max-w-2xl text-center">
+        <div className="mx-auto mb-24 max-w-2xl text-center">
           <p className="mb-4 text-[10px] font-semibold uppercase tracking-[0.32em] text-[#a51d49]">
             Occasion Edits
           </p>
-          <h2 className="font-display text-3xl font-medium text-[#1f1712] md:text-[2.65rem]">
+          <h2 className="font-display text-1xl font-medium text-[#1f1712] md:text-[2.25rem]">
             Shop By Trend
           </h2>
         </div>
 
-        <div className="grid gap-10 md:grid-cols-2">
+        <div className="grid gap-12 md:grid-cols-2">
           {trends.map((trend) => (
             <Link
               key={trend.title}
               href={trend.href}
-              className="group relative h-[390px] overflow-hidden rounded-[2rem] bg-[#f5e8dc] shadow-[0_24px_70px_rgba(43,33,27,0.12)] md:h-[470px]"
+              className="group relative h-[420px] overflow-hidden rounded-[1.4rem] bg-[#f5e8dc] shadow-[0_20px_60px_rgba(43,33,27,0.10)] md:h-[520px]"
             >
               <Image
                 src={trend.image}
@@ -61,9 +61,11 @@ export default function Categories() {
                     {trend.subtitle}
                   </p>
                   <div className="mt-7">
-                    <span className="inline-flex items-center justify-center rounded-full bg-white px-8 py-3 text-xs font-bold uppercase tracking-[0.16em] text-[#a51d49] transition group-hover:bg-[#f2d893] group-hover:text-[#2b211b]">
-                      Shop Now
-                    </span>
+                    <span className="relative inline-block text-xs font-bold uppercase tracking-[0.24em] text-white">
+  Shop Now
+  <span className="absolute -bottom-1 left-0 h-px w-full bg-white transition-all group-hover:w-0" />
+  <span className="absolute -bottom-1 left-0 h-px w-0 bg-[#f2d893] transition-all group-hover:w-full" />
+</span>
                   </div>
                 </div>
               </div>
@@ -71,7 +73,7 @@ export default function Categories() {
           ))}
         </div>
 
-        <div className="mt-20 flex justify-center gap-2">
+        <div className="mt-24 flex justify-center gap-2">
           <span className="h-px w-16 bg-[#8c8178]" />
           <span className="h-px w-8 bg-[#d8c8bd]" />
         </div>

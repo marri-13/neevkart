@@ -6,27 +6,26 @@ import { useEffect, useState } from "react";
 const slides = [
   {
     image: "/images/hero-heritage.png",
-    eyebrow: "The NeevKart Atelier",
-    title: "Sarees crafted for graceful celebrations",
-    text: "Premium drapes in refined palettes, elegant borders, and timeless Indian craftsmanship.",
+    eyebrow: "Exquisite Collections",
+    title: "Timeless Elegance in Every Stitch",
+    text: "Discover our curated selection of traditional wear, blending classic designs with contemporary grace.",
     cta: "Explore Collection",
-    position: "object-center",
   },
+
   {
     image: "/images/hero-bridal.png",
     eyebrow: "Wedding Couture",
-    title: "Regal drapes for unforgettable moments",
-    text: "Statement silks, heirloom reds, and ceremonial detailing for your grand occasions.",
+    title: "Luxury Sarees For Weddings",
+    text: "Rich festive weaves curated for unforgettable occasions and bridal elegance.",
     cta: "Shop Wedding",
-    position: "object-[center_10%]",
   },
+
   {
     image: "/images/hero-elegance.png",
-    eyebrow: "Luxury Silks",
-    title: "Quiet elegance in every drape",
-    text: "Soft shimmer, delicate borders, and a refined finish designed to feel truly premium.",
-    cta: "Explore Silks",
-    position: "object-center",
+    eyebrow: "Cotton Classics",
+    title: "Simple Sarees With Charm",
+    text: "Soft cotton drapes designed for comfort, grace, and everyday sophistication.",
+    cta: "Explore Cotton",
   },
 ];
 
@@ -34,71 +33,105 @@ export default function Hero() {
   const [activeSlide, setActiveSlide] = useState(0);
 
   useEffect(() => {
-    const timer = window.setInterval(() => {
-      setActiveSlide((current) => (current + 1) % slides.length);
+    const timer = setInterval(() => {
+      setActiveSlide((prev) => (prev + 1) % slides.length);
     }, 5000);
 
-    return () => window.clearInterval(timer);
+    return () => clearInterval(timer);
   }, []);
 
-  const active = slides[activeSlide];
-
   return (
-    <section className="bg-[#fffaf5] pb-20 pt-8 md:pb-28">
+    <section className="bg-[#fffaf5] pt-5 pb-16 md:pb-24">
       <div className="luxury-container">
-        <div className="relative h-[560px] overflow-hidden rounded-[2rem] bg-[#f4e6d8] shadow-[0_28px_80px_rgba(43,33,27,0.16)] ring-1 ring-[#eadfd6] md:h-[72vh] md:min-h-[650px] animate-luxury-rise">
-          {slides.map((slide, index) => (
-            <Image
-              key={slide.image}
-              src={slide.image}
-              alt={`${slide.eyebrow} saree collection`}
-              fill
-              priority={index === 0}
-              sizes="100vw"
-              className={`object-cover ${slide.position} transition-opacity duration-700 ${
-                index === activeSlide ? "opacity-100" : "opacity-0"
-              }`}
-            />
-          ))}
 
-          <div className="absolute inset-0 bg-gradient-to-r from-[#160f0b]/78 via-[#160f0b]/38 to-transparent" />
-          <div className="absolute inset-0 flex items-center">
-            <div className="ml-7 max-w-[520px] text-white sm:ml-12 md:ml-20">
-              <p className="mb-5 text-[10px] font-semibold uppercase tracking-[0.34em] text-[#f4d995]">
-                {active.eyebrow}
-              </p>
-              <h1 className="font-display text-[2.35rem] font-medium leading-[1.08] md:text-[3.9rem]">
-                {active.title}
-              </h1>
-              <p className="mt-6 max-w-[430px] text-base leading-8 text-white/86">{active.text}</p>
-              <div className="mt-10 flex flex-wrap gap-4">
-                <a
-                  href="#featured"
-                  className="inline-flex min-w-52 items-center justify-center rounded-full bg-white px-10 py-4 text-sm font-bold uppercase tracking-[0.16em] text-[#a51d49] shadow-[0_16px_35px_rgba(0,0,0,0.18)] transition hover:-translate-y-0.5 hover:bg-[#f4d995] hover:text-[#2b211b]"
-                >
-                  {active.cta}
-                </a>
-                <a
-                  href="/sarees?category=wedding"
-                  className="inline-flex min-w-48 items-center justify-center rounded-full border border-white/70 bg-white/10 px-10 py-4 text-sm font-bold uppercase tracking-[0.16em] text-white backdrop-blur-sm transition hover:-translate-y-0.5 hover:bg-white/18"
-                >
-                  Wedding Edit
-                </a>
-              </div>
-            </div>
-          </div>
+        <div className="relative overflow-hidden rounded-[2rem] border border-[#eadfd6] bg-[#f8efe7] shadow-[0_15px_45px_rgba(43,33,27,0.06)]">
 
-          <div className="absolute bottom-8 left-1/2 flex -translate-x-1/2 gap-3">
+          {/* HERO HEIGHT */}
+          <div className="relative h-[360px] md:h-[520px]">
+
+            {/* SLIDES */}
             {slides.map((slide, index) => (
-              <button
+              <div
                 key={slide.image}
-                aria-label={`Show ${slide.eyebrow}`}
-                className={`h-0.5 rounded-full transition-all ${
-                  index === activeSlide ? "w-16 bg-white" : "w-10 bg-white/45"
+                className={`absolute inset-0 transition-opacity duration-700 ${
+                  index === activeSlide
+                    ? "opacity-100 z-10"
+                    : "opacity-0 z-0"
                 }`}
-                onClick={() => setActiveSlide(index)}
-              />
+              >
+
+                {/* IMAGE */}
+                <Image
+                  src={slide.image}
+                  alt={slide.title}
+                  fill
+                  priority={index === 0}
+                  sizes="100vw"
+                  className="object-cover object-center"
+                />
+
+                {/* LIGHT SOFT OVERLAY */}
+                <div className="absolute inset-0 bg-gradient-to-r from-[#fffaf5]/78 via-[#fffaf5]/30 to-transparent" />
+
+                {/* CONTENT */}
+                <div className="absolute inset-0 flex items-center">
+
+                  <div className="ml-6 max-w-[430px] md:ml-16">
+
+                    {/* EYEBROW */}
+                    <p className="mb-4 text-[10px] font-semibold uppercase tracking-[0.34em] text-[#a51d49]">
+                      {slide.eyebrow}
+                    </p>
+
+                    {/* TITLE */}
+                    <h1 className="font-display text-[2.2rem] leading-[1] text-[#9d1f46] md:text-[4.6rem]">
+                      {slide.title}
+                    </h1>
+
+                    {/* DESCRIPTION */}
+                    <p className="mt-5 max-w-[390px] text-sm leading-7 text-[#6f5948] md:text-base">
+                      {slide.text}
+                    </p>
+
+                    {/* BUTTONS */}
+                    <div className="mt-8 flex flex-wrap gap-3">
+
+                      <a
+                        href="#featured"
+                        className="inline-flex items-center justify-center rounded-full border border-[#e2c7b2] bg-white px-7 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-[#9a7c67] transition hover:bg-[#fffaf5]"
+                      >
+                        {slide.cta}
+                      </a>
+
+                      <a
+                        href="/sarees"
+                        className="inline-flex items-center justify-center rounded-full border border-[#e2c7b2] bg-white px-7 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-[#9a7c67] transition hover:bg-[#fffaf5]"
+                      >
+                        View Collections
+                      </a>
+
+                    </div>
+                  </div>
+                </div>
+              </div>
             ))}
+
+            {/* SLIDER DOTS */}
+            <div className="absolute bottom-6 left-1/2 z-20 flex -translate-x-1/2 gap-3">
+              {slides.map((slide, index) => (
+                <button
+                  key={slide.image}
+                  aria-label={`Show ${slide.eyebrow}`}
+                  onClick={() => setActiveSlide(index)}
+                  className={`h-1 rounded-full transition-all duration-300 ${
+                    index === activeSlide
+                      ? "w-12 bg-[#a51d49]"
+                      : "w-7 bg-[#a51d49]/25"
+                  }`}
+                />
+              ))}
+            </div>
+
           </div>
         </div>
       </div>

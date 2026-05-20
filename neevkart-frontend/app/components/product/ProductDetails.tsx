@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { ChangeEvent, useState } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { Product, formatPrice } from "@/lib/products";
 import { useCart } from "@/lib/cart";
 
@@ -16,25 +16,26 @@ export default function ProductDetailsClient({ product }: ProductDetailsProps) {
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [addedToCart, setAddedToCart] = useState(false);
+  const soldOut = product.stock === 0;
 
   const handleAddToCart = () => {
+    if (soldOut) {
+      return;
+    }
+
     addItem(product, quantity);
     setAddedToCart(true);
-    setTimeout(() => {
-      router.push("/cart");
-    }, 1000);
+    window.setTimeout(() => router.push("/cart"), 700);
   };
 
-  const handleQuantityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setQuantity(parseInt(e.target.value));
+  const handleQuantityChange = (event: ChangeEvent<HTMLSelectElement>) => {
+    setQuantity(Number(event.target.value));
   };
 
   return (
     <>
-      {/* Image Gallery */}
-      <div>
-        {/* Main Image */}
-        <div className="relative mb-6 aspect-[3/4] overflow-hidden rounded-lg bg-[#f4e8de]">
+      <div className="min-w-0">
+        <div className="relative aspect-[3/4] overflow-hidden rounded-md bg-[#f4e8de]">
           <Image
             src={product.images[selectedImage]}
             alt={product.name}
@@ -42,141 +43,117 @@ export default function ProductDetailsClient({ product }: ProductDetailsProps) {
             className="object-cover object-top"
             priority
           />
-          {product.stock === 0 && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/40">
-              <span className="text-2xl font-semibold text-white">Sold Out</span>
+          {soldOut && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/35">
+              <span className="rounded bg-white px-5 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-[#a51d49]">
+                Sold Out
+              </span>
             </div>
           )}
         </div>
 
-        {/* Thumbnail Images */}
-        <div className="flex gap-3">
-          {product.images.map((img, idx) => (
+        <div className="mt-4 flex gap-3 overflow-x-auto pb-1">
+          {product.images.map((image, index) => (
             <button
-              key={idx}
-              onClick={() => setSelectedImage(idx)}
-              className={`relative h-20 w-20 overflow-hidden rounded-md border-2 transition ${
-                selectedImage === idx
-                  ? "border-[#a51d49]"
-                  : "border-[#eadfd6] hover:border-[#d4c4b0]"
+              key={`${image}-${index}`}
+              onClick={() => setSelectedImage(index)}
+              className={`relative h-20 w-16 shrink-0 overflow-hidden rounded border bg-[#f4e8de] ${
+                selectedImage === index ? "border-[#a51d49]" : "border-[#e5d6ca]"
               }`}
+              aria-label={`Show product image ${index + 1}`}
             >
-              <Image
-                src={img}
-                alt={`${product.name} view ${idx + 1}`}
-                fill
-                className="object-cover object-top"
-              />
+              <Image src={image} alt={`${product.name} view ${index + 1}`} fill className="object-cover object-top" />
             </button>
           ))}
         </div>
       </div>
 
-      {/* Product Info */}
-      <div>
-        {/* Category & Tag */}
-        <div className="mb-4 flex items-center gap-3">
-          <span className="text-xs font-semibold uppercase tracking-[0.16em] text-[#8a7062]">
-            {product.category}
-          </span>
-          {product.tag && (
-            <span className="inline-block rounded-full bg-[#fff1f5] px-3 py-1 text-xs font-semibold text-[#a51d49]">
-              {product.tag}
-            </span>
-          )}
+      <section className="min-w-0 bg-white text-[#2b211b]">
+        <div className="flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#8a7062]">
+          <span>{product.category}</span>
+          {product.tag && <span className="text-[#a51d49]">{product.tag}</span>}
         </div>
 
-        {/* Title */}
-        <h1 className="mb-2 text-3xl font-medium text-[#1f1712] md:text-4xl">
+        <h1 className="mt-4 max-w-2xl text-2xl font-medium leading-snug text-[#1f1712] md:text-3xl">
           {product.name}
         </h1>
 
-        {/* Fabric */}
-        <p className="mb-6 text-sm text-[#8a7062]">Fabric: {product.fabric}</p>
+        <p className="mt-3 max-w-2xl text-sm leading-6 text-[#6f5948]">{product.description}</p>
 
-        {/* Price */}
-        <div className="mb-8 border-y border-[#eadfd6] py-6">
-          <div className="flex items-baseline gap-3">
-            <span className="text-3xl font-semibold text-[#1f1712]">
-              {formatPrice(product.price)}
-            </span>
+        <div className="mt-6 border-y border-[#eadfd6] py-5">
+          <div className="flex flex-wrap items-baseline gap-3">
+            <span className="text-3xl font-semibold text-[#1f1712]">{formatPrice(product.price)}</span>
             {product.originalPrice && (
-              <span className="text-lg text-[#9b897d] line-through">
-                {formatPrice(product.originalPrice)}
+              <span className="text-sm text-[#9b897d] line-through">{formatPrice(product.originalPrice)}</span>
+            )}
+            {product.originalPrice && (
+              <span className="text-sm font-semibold text-[#a51d49]">
+                {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% off
               </span>
             )}
           </div>
-          {product.originalPrice && (
-            <p className="mt-2 text-sm text-[#a51d49] font-medium">
-              Save {formatPrice(product.originalPrice - product.price)}
-            </p>
-          )}
+          <p className="mt-2 text-xs text-[#8a7062]">Inclusive of all taxes</p>
         </div>
 
-        {/* Description */}
-        <p className="mb-8 text-[#6f5948] leading-relaxed">{product.description}</p>
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+          {!soldOut && (
+            <label className="flex h-12 items-center gap-3 px-4 text-sm text-[#2b211b] focus-within:outline-none focus-within:ring-0">
+              Qty
+              <select value={quantity} onChange={handleQuantityChange} className="h-full w-full rounded-md border border-[#d9c6b5] bg-transparent px-2 font-medium outline-none focus:outline-none focus:ring-0">
+                {Array.from({ length: Math.min(product.stock, 10) }, (_, index) => (
+                  <option key={index + 1} value={index + 1}>
+                    {index + 1}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
 
-        {/* Details */}
-        <div className="mb-8">
-          <h3 className="mb-4 font-medium text-[#1f1712]">Product Details</h3>
-          <ul className="space-y-2">
-            {product.details.map((detail, idx) => (
-              <li key={idx} className="flex items-start gap-3 text-sm text-[#6f5948]">
-                <span className="mt-1.5 block h-1.5 w-1.5 flex-shrink-0 rounded-full bg-[#a51d49]" />
-                {detail}
-              </li>
+          <button
+            onClick={handleAddToCart}
+            disabled={soldOut}
+            className={`h-12 flex-1 rounded-md px-8 text-sm font-semibold uppercase tracking-[0.12em] text-white transition ${
+              soldOut
+                ? "cursor-not-allowed bg-[#c8b7a8]"
+                : addedToCart
+                  ? "bg-[#2d9d4e]"
+                  : "bg-[#a51d49] hover:bg-[#8b1840]"
+            }`}
+          >
+            {soldOut ? "Sold Out" : addedToCart ? "Added to Bag" : "Add to Bag"}
+          </button>
+        </div>
+
+        <div className="mt-7 border-t border-[#eadfd6] pt-6">
+          <h2 className="text-base font-semibold text-[#1f1712]">Product Details</h2>
+          <div className="mt-4 divide-y divide-[#f0e3d9] text-sm">
+            <DetailRow label="Fabric" value={product.fabric} />
+            <DetailRow label="Occasion" value={product.occasion} />
+            <DetailRow label="Color" value={product.color} />
+            <DetailRow label="Stock" value={soldOut ? "Out of stock" : `${product.stock} available`} />
+          </div>
+
+          <ul className="mt-4 grid gap-2 text-sm leading-6 text-[#6f5948]">
+            {product.details.map((detail) => (
+              <li key={detail}>{detail}</li>
             ))}
           </ul>
         </div>
 
-        {/* Stock Status */}
-        <div className="mb-8">
-          {product.stock === 0 ? (
-            <p className="text-lg font-semibold text-[#a51d49]">Out of Stock</p>
-          ) : (
-            <p className="text-sm text-[#6f5948]">
-              Only <span className="font-semibold text-[#1f1712]">{product.stock} left</span> in stock
-            </p>
-          )}
+        <div className="mt-7 border-t border-[#eadfd6] pt-5 text-sm leading-7 text-[#6f5948]">
+          <p>Secure Razorpay checkout only. COD is not available.</p>
+          <p className="font-semibold text-[#a51d49]">All sales are final. No return or exchange available.</p>
         </div>
-
-        {/* Add to Cart */}
-        <div className="mb-8 flex gap-4">
-          <select
-            value={quantity}
-            onChange={handleQuantityChange}
-            disabled={product.stock === 0}
-            className="rounded border border-[#d4c4b0] px-4 py-3 text-[#1f1712] focus:border-[#a51d49] focus:outline-none disabled:opacity-50"
-          >
-            {Array.from({ length: Math.min(product.stock, 10) }, (_, i) => (
-              <option key={i + 1} value={i + 1}>
-                Qty: {i + 1}
-              </option>
-            ))}
-          </select>
-
-          <button
-            onClick={handleAddToCart}
-            disabled={product.stock === 0}
-            className={`flex-1 rounded px-6 py-3 font-medium text-white transition ${
-              product.stock === 0
-                ? "cursor-not-allowed bg-[#d4c4b0]"
-                : addedToCart
-                  ? "bg-[#2d9d4e]"
-                  : "bg-[#a51d49] hover:bg-[#8a1c39]"
-            }`}
-          >
-            {addedToCart ? "✓ Added to Cart" : "Add to Cart"}
-          </button>
-        </div>
-
-        {/* Policies */}
-        <div className="space-y-3 border-t border-[#eadfd6] pt-6 text-sm text-[#6f5948]">
-          <p>✓ Secure online payments through Razorpay</p>
-          <p>✓ No Cash on Delivery (COD) available</p>
-          <p className="font-medium text-[#a51d49]">✗ All sales are final. No return or exchange available.</p>
-        </div>
-      </div>
+      </section>
     </>
+  );
+}
+
+function DetailRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="grid grid-cols-[120px_1fr] gap-4 py-3">
+      <span className="text-[#8a7062]">{label}</span>
+      <span className="font-medium text-[#2b211b]">{value}</span>
+    </div>
   );
 }
