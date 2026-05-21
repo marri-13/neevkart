@@ -1,8 +1,9 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useUser, useClerk } from "@clerk/nextjs";
 import CartCount from "./CartCount";
 
 const sareeMenuSections = [
@@ -118,14 +119,55 @@ const mobileMenuItems = [
 
 export default function Navbar() {
   const router = useRouter();
+  const { user, isLoaded } = useUser();
+  const { signOut } = useClerk();
   const [searchTerm, setSearchTerm] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+
+  // Close user menu when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setUserMenuOpen(false);
+      }
+    }
+
+    if (userMenuOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+      };
+    }
+  }, [userMenuOpen]);
 
   const handleSearch = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const query = searchTerm.trim();
     router.push(query ? `/sarees?search=${encodeURIComponent(query)}` : "/sarees");
     setMobileMenuOpen(false);
+  };
+
+  const handleCartClick = () => {
+    if (!isLoaded) {
+      return;
+    }
+
+    if (!user) {
+      // Redirect to sign-up if not authenticated
+      router.push("/sign-up");
+      return;
+    }
+
+    // Navigate to cart if authenticated
+    router.push("/cart");
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    setUserMenuOpen(false);
+    router.push("/");
   };
 
   return (
@@ -196,7 +238,7 @@ export default function Navbar() {
           </button>
         </form>
 
-        <div className="flex items-center gap-2 text-[#3d3029] mr-4">
+        <div className="flex items-center gap-2 text-[#3d3029]">
           <Link href="/sarees" className="text-[#8f5c70] transition hover:text-[#c44778] md:hidden" aria-label="Search">
             <svg aria-hidden="true" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7" viewBox="0 0 24 24">
               <circle cx="11" cy="11" r="7" />
@@ -204,20 +246,97 @@ export default function Navbar() {
             </svg>
           </Link>
 
-          <Link href="/login" className="hidden text-[#8f5c70] transition hover:text-[#c44778] sm:grid" aria-label="Account">
-            <svg aria-hidden="true" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7" viewBox="0 0 24 24">
-              <circle cx="12" cy="8" r="3.2" />
-              <path d="M5 20a7 7 0 0 1 14 0" />
-            </svg>
-          </Link>
+          {isLoaded && !user ? (
+            <Link href="/sign-up" className="hidden text-[#8f5c70] transition hover:text-[#c44778] sm:grid" aria-label="Account">
+              <svg aria-hidden="true" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7" viewBox="0 0 24 24">
+                <circle cx="12" cy="8" r="3.2" />
+                <path d="M5 20a7 7 0 0 1 14 0" />
+              </svg>
+            </Link>
+          ) : isLoaded && user ? (
+            <div className="relative" ref={userMenuRef}>
+              <button
+                onClick={() => setUserMenuOpen(!userMenuOpen)}
+                className="hidden text-[#8f5c70] transition hover:text-[#c44778] sm:grid"
+                aria-label="Account menu"
+              >
+                <svg aria-hidden="true" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7" viewBox="0 0 24 24">
+                  <circle cx="12" cy="8" r="3.2" />
+                  <path d="M5 20a7 7 0 0 1 14 0" />
+                </svg>
+              </button>
 
-          <Link href="/cart" className="relative grid h-10 w-10 place-items-center rounded-full transition hover:bg-[#fff1f5] hover:text-[#a51d49]" aria-label="Cart">
+              {userMenuOpen && (
+                <div className="absolute right-0 top-full mt-2 w-80 rounded-lg border border-[#f0e2d8] bg-white shadow-[0_8px_32px_rgba(43,33,27,0.16)] z-50">
+                  {/* User Info */}
+                  <div className="border-b border-[#f0e2d8] px-6 py-4">
+                    <p className="text-sm font-semibold text-[#2b211b]">
+                      {user.firstName} {user.lastName}
+                    </p>
+                    <p className="text-xs text-[#8a7062]">
+                      {user.primaryEmailAddress?.emailAddress}
+                    </p>
+                  </div>
+
+                  {/* Menu Items */}
+                  <div className="py-2">
+                    <button
+                      onClick={() => {
+                        router.push("/account");
+                        setUserMenuOpen(false);
+                      }}
+                      className="flex w-full items-center gap-3 px-6 py-3 text-sm text-[#6f5948] hover:bg-[#fff1f5] hover:text-[#a51d49] transition"
+                    >
+                      <svg aria-hidden="true" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="1" />
+                        <circle cx="12" cy="5" r="1" />
+                        <circle cx="12" cy="19" r="1" />
+                        <path d="M9 12a3 3 0 1 0 6 0 3 3 0 0 0-6 0" />
+                      </svg>
+                      Manage account
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        router.push("/orders");
+                        setUserMenuOpen(false);
+                      }}
+                      className="flex w-full items-center gap-3 px-6 py-3 text-sm text-[#6f5948] hover:bg-[#fff1f5] hover:text-[#a51d49] transition"
+                    >
+                      <svg aria-hidden="true" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7" viewBox="0 0 24 24">
+                        <path d="M9 3H5a2 2 0 0 0-2 2v18a2 2 0 0 0 2 2h4" />
+                        <path d="M15 3h4a2 2 0 0 1 2 2v18a2 2 0 0 1-2 2h-4" />
+                        <path d="M9 6h6M9 12h6M9 18h6" />
+                      </svg>
+                      My Orders
+                    </button>
+
+                    <button
+                      onClick={handleSignOut}
+                      className="flex w-full items-center gap-3 px-6 py-3 text-sm text-[#6f5948] hover:bg-[#fff1f5] hover:text-[#a51d49] transition"
+                    >
+                      <svg aria-hidden="true" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7" viewBox="0 0 24 24">
+                        <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h4a3 3 0 0 1 3 3v1" />
+                      </svg>
+                      Sign out
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : null}
+
+          <button
+            onClick={handleCartClick}
+            className="relative grid h-10 w-10 place-items-center rounded-full transition hover:bg-[#fff1f5] hover:text-[#a51d49]"
+            aria-label="Cart"
+          >
             <svg aria-hidden="true" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7" viewBox="0 0 24 24">
               <path d="M6.5 8.5h11l-.9 10.5H7.4L6.5 8.5Z" />
               <path d="M9.2 8.5a2.8 2.8 0 0 1 5.6 0" />
             </svg>
             <CartCount />
-          </Link>
+          </button>
 
           <button
             className="text-[#8f5c70] transition hover:text-[#c44778] lg:hidden"

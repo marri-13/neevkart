@@ -1,0 +1,36 @@
+.clerk-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #8b2e5f 0%, #c41e3a 100%);
+  padding: 2rem;
+}
+
+.clerk-container > div {
+  width: 100%;
+  max-width: 450px;
+}
+
+:global(.cl-root) {
+  --cl-primary-color: #8b2e5f;
+}
+
+:global(.cl-card) {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+:global(.cl-button__primary) {
+  background: linear-gradient(135deg, #8b2e5f 0%, #c41e3a 100%);
+}
+
+:global(.cl-button__primary:hover) {
+  opacity: 0.9;
+}
+
+:global(.cl-footer) {
+  margin-top: 1rem;
+  text-align: center;
+}
