@@ -360,6 +360,9 @@ export function formatPrice(price: number) {
   return `Rs. ${price.toLocaleString("en-IN")}`;
 }
 
-export function getProductBySlug(slug: string) {
+export const getProductBySlug = (slug: string) => {
   return products.find((product) => product.slug === slug);
-}
+};
+
+
+
