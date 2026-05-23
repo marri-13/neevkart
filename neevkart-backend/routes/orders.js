@@ -1,60 +1,24 @@
-const express = require("express");
-const Order = require("../models/Order");
-const adminAuthMiddleware = require("../middleware/adminAuth");
+import express from "express";
+import {
+  getOrders,
+  getOrderById,
+  updateOrderStatus,
+  updateOrderPaymentStatus,
+} from "../controllers/ordersController.js";
+import adminAuthMiddleware from "../middleware/adminAuth.js";
 
 const router = express.Router();
 
 // Get all orders
-router.get("/", adminAuthMiddleware, async (req, res) => {
-  try {
-    const orders = await Order.find().sort({ createdAt: -1 });
-    res.json({ orders });
-  } catch (error) {
-    res.status(500).json({ message: "Failed to fetch orders" });
-  }
-});
+router.get("/", adminAuthMiddleware, getOrders);
 
 // Get single order
-router.get("/:id", adminAuthMiddleware, async (req, res) => {
-  try {
-    const order = await Order.findById(req.params.id);
-    if (!order) {
-      return res.status(404).json({ message: "Order not found" });
-    }
-    res.json({ order });
-  } catch (error) {
-    res.status(500).json({ message: "Failed to fetch order" });
-  }
-});
+router.get("/:id", adminAuthMiddleware, getOrderById);
 
 // Update order status
-router.patch("/:id", adminAuthMiddleware, async (req, res) => {
-  try {
-    const { status } = req.body;
-    const order = await Order.findByIdAndUpdate(
-      req.params.id,
-      { status },
-      { new: true }
-    );
-    res.json({ order, message: "Order status updated" });
-  } catch (error) {
-    res.status(500).json({ message: "Failed to update order" });
-  }
-});
+router.patch("/:id", adminAuthMiddleware, updateOrderStatus);
 
 // Update payment status
-router.patch("/:id/payment", adminAuthMiddleware, async (req, res) => {
-  try {
-    const { paymentStatus } = req.body;
-    const order = await Order.findByIdAndUpdate(
-      req.params.id,
-      { paymentStatus },
-      { new: true }
-    );
-    res.json({ order, message: "Payment status updated" });
-  } catch (error) {
-    res.status(500).json({ message: "Failed to update payment status" });
-  }
-});
+router.patch("/:id/payment", adminAuthMiddleware, updateOrderPaymentStatus);
 
-module.exports = router;
+export default router;

@@ -1,38 +1,13 @@
-const express = require("express");
-const Settings = require("../models/Settings");
-const adminAuthMiddleware = require("../middleware/adminAuth");
+import express from "express";
+import { getSettings, updateSettings } from "../controllers/settingsController.js";
+import adminAuthMiddleware from "../middleware/adminAuth.js";
 
 const router = express.Router();
 
 // Get settings
-router.get("/", adminAuthMiddleware, async (req, res) => {
-  try {
-    let settings = await Settings.findOne();
-    if (!settings) {
-      settings = new Settings();
-      await settings.save();
-    }
-    res.json({ settings });
-  } catch (error) {
-    res.status(500).json({ message: "Failed to fetch settings" });
-  }
-});
+router.get("/", adminAuthMiddleware, getSettings);
 
 // Update settings
-router.put("/", adminAuthMiddleware, async (req, res) => {
-  try {
-    let settings = await Settings.findOne();
-    if (!settings) {
-      settings = new Settings();
-    }
+router.put("/", adminAuthMiddleware, updateSettings);
 
-    Object.assign(settings, req.body);
-    await settings.save();
-
-    res.json({ settings, message: "Settings updated successfully" });
-  } catch (error) {
-    res.status(500).json({ message: "Failed to update settings" });
-  }
-});
-
-module.exports = router;
+export default router;

@@ -1,14 +1,11 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const connectDB = async () => {
-  try {
-    const conn = await mongoose.connect(process.env.MONGODB_URI);
 
-    console.log(`MongoDB Connected: ${conn.connection.host}`);
-  } catch (error) {
-    console.error(error);
-    process.exit(1);
-  }
-};
+    mongoose.connection.on("connected", () => {
+        console.log("Database connected");
+    });
+   await mongoose.connect(`${process.env.MONGODB_URI}/neevkart`)
+}
 
-module.exports = connectDB;
+export default connectDB;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -60,6 +60,7 @@ export default function CheckoutPage() {
   const router = useRouter();
   const { items, getTotalPrice, clearCart } = useCart();
   const [loading, setLoading] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     fullName: "",
     email: "",
@@ -71,9 +72,40 @@ export default function CheckoutPage() {
   });
   const [errors, setErrors] = useState<FormErrors>({});
 
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/register?redirect=%2Fcheckout");
+      return;
+    }
+
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      try {
+        const parsed = JSON.parse(userData);
+        setFormData((prev) => ({
+          ...prev,
+          fullName: prev.fullName || parsed.name || "",
+          email: prev.email || parsed.email || "",
+        }));
+      } catch (err) {
+        console.error("Failed to parse user info:", err);
+      }
+    }
+    setAuthChecked(true);
+  }, [router]);
+
   const totalPrice = getTotalPrice();
   const tax = totalPrice * 0.18;
   const finalPrice = totalPrice + tax;
+
+  if (!authChecked) {
+    return (
+      <div className="flex justify-center items-center min-h-screen text-xl text-gray-400 font-sans bg-[#fffaf5]">
+        Loading...
+      </div>
+    );
+  }
 
   if (items.length === 0) {
     return (

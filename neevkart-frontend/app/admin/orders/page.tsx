@@ -1,12 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@clerk/nextjs";
 import { createAdminApi, checkAdminRole } from "@/lib/adminAuth";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
-import "../admin.css";
-import "./orders.css";
 
 interface Order {
   _id: string;
@@ -20,7 +17,6 @@ interface Order {
 }
 
 export default function OrdersPage() {
-  const { getToken } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
@@ -29,24 +25,19 @@ export default function OrdersPage() {
   useEffect(() => {
     const initPage = async () => {
       try {
-        const token = await getToken();
-        if (!token) {
-          router.push("/sign-in");
-          return;
-        }
-        await checkAdminRole(token);
-        fetchOrders(token);
+        await checkAdminRole();
+        fetchOrders();
       } catch (err) {
         console.error("Admin check failed:", err);
         router.push("/");
       }
     };
     initPage();
-  }, [getToken, router]);
+  }, [router]);
 
-  const fetchOrders = async (token: string) => {
+  const fetchOrders = async () => {
     try {
-      const api = createAdminApi(token);
+      const api = createAdminApi();
       const response = await api.get("/api/admin/orders");
       setOrders(response.data.orders || []);
     } catch (err) {
@@ -58,12 +49,9 @@ export default function OrdersPage() {
 
   const updateOrderStatus = async (orderId: string, newStatus: string) => {
     try {
-      const token = await getToken();
-      if (!token) return;
-
-      const api = createAdminApi(token);
+      const api = createAdminApi();
       await api.patch(`/api/admin/orders/${orderId}`, { status: newStatus });
-      fetchOrders(token);
+      fetchOrders();
     } catch (err) {
       console.error("Failed to update order");
     }
@@ -71,12 +59,9 @@ export default function OrdersPage() {
 
   const updatePaymentStatus = async (orderId: string, paymentStatus: string) => {
     try {
-      const token = await getToken();
-      if (!token) return;
-
-      const api = createAdminApi(token);
+      const api = createAdminApi();
       await api.patch(`/api/admin/orders/${orderId}/payment`, { paymentStatus });
-      fetchOrders(token);
+      fetchOrders();
     } catch (err) {
       console.error("Failed to update payment status");
     }
@@ -93,32 +78,68 @@ export default function OrdersPage() {
             : order.paymentStatus === "pending"
         );
 
-  if (loading) return <div className="loading">Loading...</div>;
+  const getStatusColorClass = (status: string) => {
+    switch (status) {
+      case "pending":
+        return "bg-[#fff3cd] text-[#856404]";
+      case "processing":
+        return "bg-[#cce5ff] text-[#004085]";
+      case "shipped":
+        return "bg-[#d1ecf1] text-[#0c5460]";
+      case "completed":
+        return "bg-[#d4edda] text-[#155724]";
+      case "cancelled":
+      case "failed":
+        return "bg-[#f8d7da] text-[#721c24]";
+      default:
+        return "bg-gray-100 text-gray-700";
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen text-xl text-gray-400 font-sans">
+        Loading...
+      </div>
+    );
+  }
 
   return (
-    <div className="admin-dashboard">
+    <div className="flex min-h-screen bg-[#f5f5f5]">
       <Sidebar />
-      <main className="main-content">
+      <main className="flex-1 ml-[250px] transition-all duration-300 overflow-y-auto max-h-screen max-md:ml-[80px]">
         <Header />
 
-        <div className="orders-content">
-          <div className="orders-header">
-            <h1>Orders Management</h1>
-            <div className="filter-buttons">
+        <div className="p-8 max-w-[1400px] mx-auto max-md:p-4 font-sans">
+          <div className="flex justify-between items-center mb-8 flex-wrap gap-4">
+            <h1 className="text-gray-805 text-3xl font-bold max-md:text-2xl">Orders Management</h1>
+            <div className="flex gap-2 flex-wrap max-md:w-full">
               <button
-                className={`filter-btn ${filter === "all" ? "active" : ""}`}
+                className={`px-4 py-2 border-2 rounded-lg cursor-pointer font-semibold transition-all duration-300 ${
+                  filter === "all"
+                    ? "border-transparent bg-gradient-to-r from-[#8b2e5f] to-[#c41e3a] text-white"
+                    : "border-gray-200 bg-white text-gray-500 hover:border-[#8b2e5f] hover:text-[#8b2e5f]"
+                }`}
                 onClick={() => setFilter("all")}
               >
                 All Orders
               </button>
               <button
-                className={`filter-btn ${filter === "pending" ? "active" : ""}`}
+                className={`px-4 py-2 border-2 rounded-lg cursor-pointer font-semibold transition-all duration-300 ${
+                  filter === "pending"
+                    ? "border-transparent bg-gradient-to-r from-[#8b2e5f] to-[#c41e3a] text-white"
+                    : "border-gray-200 bg-white text-gray-500 hover:border-[#8b2e5f] hover:text-[#8b2e5f]"
+                }`}
                 onClick={() => setFilter("pending")}
               >
                 Pending
               </button>
               <button
-                className={`filter-btn ${filter === "completed" ? "active" : ""}`}
+                className={`px-4 py-2 border-2 rounded-lg cursor-pointer font-semibold transition-all duration-300 ${
+                  filter === "completed"
+                    ? "border-transparent bg-gradient-to-r from-[#8b2e5f] to-[#c41e3a] text-white"
+                    : "border-gray-200 bg-white text-gray-500 hover:border-[#8b2e5f] hover:text-[#8b2e5f]"
+                }`}
                 onClick={() => setFilter("completed")}
               >
                 Completed
@@ -126,38 +147,42 @@ export default function OrdersPage() {
             </div>
           </div>
 
-          <div className="orders-table-container">
-            <table className="orders-table">
-              <thead>
+          <div className="bg-white rounded-lg shadow-[0_2px_8px_rgba(0,0,0,0.06)] overflow-hidden overflow-x-auto">
+            <table className="w-full border-collapse text-left text-sm">
+              <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
-                  <th>Order ID</th>
-                  <th>Customer</th>
-                  <th>Amount</th>
-                  <th>Order Status</th>
-                  <th>Payment Status</th>
-                  <th>Date</th>
-                  <th>Actions</th>
+                  <th className="p-4 font-semibold text-gray-700 whitespace-nowrap">Order ID</th>
+                  <th className="p-4 font-semibold text-gray-700 whitespace-nowrap">Customer</th>
+                  <th className="p-4 font-semibold text-gray-700 whitespace-nowrap">Amount</th>
+                  <th className="p-4 font-semibold text-gray-700 whitespace-nowrap">Order Status</th>
+                  <th className="p-4 font-semibold text-gray-700 whitespace-nowrap">Payment Status</th>
+                  <th className="p-4 font-semibold text-gray-700 whitespace-nowrap">Date</th>
+                  <th className="p-4 font-semibold text-gray-700 whitespace-nowrap">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredOrders.length > 0 ? (
                   filteredOrders.map((order) => (
-                    <tr key={order._id}>
-                      <td className="order-id">#{order._id.slice(0, 8)}</td>
-                      <td>
+                    <tr key={order._id} className="hover:bg-gray-50 transition duration-150">
+                      <td className="p-4 border-b border-gray-100 text-gray-600 font-semibold text-[#8b2e5f]">
+                        #{order._id.slice(0, 8)}
+                      </td>
+                      <td className="p-4 border-b border-gray-100 text-gray-600">
                         <div>
-                          <p className="customer-name">{order.customerName}</p>
-                          <p className="customer-email">{order.customerEmail}</p>
+                          <p className="font-semibold text-gray-800 m-0">{order.customerName}</p>
+                          <p className="text-gray-400 text-xs mt-1 m-0">{order.customerEmail}</p>
                         </div>
                       </td>
-                      <td className="amount">₹{order.totalAmount}</td>
-                      <td>
+                      <td className="p-4 border-b border-gray-100 text-[#2e7d32] font-semibold text-[1.05rem]">
+                        ₹{order.totalAmount}
+                      </td>
+                      <td className="p-4 border-b border-gray-100">
                         <select
-                          className={`status-select ${order.status}`}
+                          className={`p-2 border border-gray-300 rounded-md text-xs cursor-pointer focus:outline-none focus:border-[#8b2e5f] focus:ring-2 focus:ring-[#8b2e5f]/10 transition duration-300 font-semibold ${getStatusColorClass(
+                            order.status
+                          )}`}
                           value={order.status}
-                          onChange={(e) =>
-                            updateOrderStatus(order._id, e.target.value)
-                          }
+                          onChange={(e) => updateOrderStatus(order._id, e.target.value)}
                         >
                           <option value="pending">Pending</option>
                           <option value="processing">Processing</option>
@@ -166,24 +191,27 @@ export default function OrdersPage() {
                           <option value="cancelled">Cancelled</option>
                         </select>
                       </td>
-                      <td>
+                      <td className="p-4 border-b border-gray-100">
                         <select
-                          className={`payment-select ${order.paymentStatus}`}
+                          className={`p-2 border border-gray-300 rounded-md text-xs cursor-pointer focus:outline-none focus:border-[#8b2e5f] focus:ring-2 focus:ring-[#8b2e5f]/10 transition duration-300 font-semibold ${getStatusColorClass(
+                            order.paymentStatus
+                          )}`}
                           value={order.paymentStatus}
-                          onChange={(e) =>
-                            updatePaymentStatus(order._id, e.target.value)
-                          }
+                          onChange={(e) => updatePaymentStatus(order._id, e.target.value)}
                         >
                           <option value="pending">Pending</option>
                           <option value="completed">Completed</option>
                           <option value="failed">Failed</option>
                         </select>
                       </td>
-                      <td className="date">
+                      <td className="p-4 border-b border-gray-100 text-gray-500 text-[0.9rem]">
                         {new Date(order.createdAt).toLocaleDateString()}
                       </td>
-                      <td>
-                        <a href={`/admin/orders/${order._id}`} className="btn-view">
+                      <td className="p-4 border-b border-gray-100">
+                        <a
+                          href={`/admin/orders/${order._id}`}
+                          className="inline-block px-3 py-1.5 bg-[#e3f2fd] text-[#1976d2] rounded-md font-semibold text-xs transition hover:bg-[#bbdefb] duration-300"
+                        >
                           View
                         </a>
                       </td>
@@ -191,7 +219,7 @@ export default function OrdersPage() {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={7} className="empty-state">
+                    <td colSpan={7} className="text-center text-gray-400 py-12">
                       No orders found
                     </td>
                   </tr>

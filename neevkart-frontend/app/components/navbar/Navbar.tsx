@@ -3,7 +3,6 @@
 import { FormEvent, useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useUser, useClerk } from "@clerk/nextjs";
 import CartCount from "./CartCount";
 
 const sareeMenuSections = [
@@ -119,8 +118,19 @@ const mobileMenuItems = [
 
 export default function Navbar() {
   const router = useRouter();
-  const { user, isLoaded } = useUser();
-  const { signOut } = useClerk();
+  const [user, setUser] = useState<any>(null);
+  const isLoaded = true;
+
+  useEffect(() => {
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      try {
+        setUser(JSON.parse(userData));
+      } catch (err) {
+        console.error("Failed to parse user data", err);
+      }
+    }
+  }, []);
   const [searchTerm, setSearchTerm] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -150,24 +160,19 @@ export default function Navbar() {
   };
 
   const handleCartClick = () => {
-    if (!isLoaded) {
-      return;
-    }
-
-    if (!user) {
-      // Redirect to sign-up if not authenticated
-      router.push("/sign-up");
-      return;
-    }
-
-    // Navigate to cart if authenticated
+    // Navigate to cart directly since authentication is bypassed/removed
     router.push("/cart");
   };
 
-  const handleSignOut = async () => {
-    await signOut();
+  const handleSignOut = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setUser(null);
     setUserMenuOpen(false);
     router.push("/");
+    setTimeout(() => {
+      window.location.reload();
+    }, 100);
   };
 
   return (
@@ -247,7 +252,7 @@ export default function Navbar() {
           </Link>
 
           {isLoaded && !user ? (
-            <Link href="/sign-up" className="hidden text-[#8f5c70] transition hover:text-[#c44778] sm:grid" aria-label="Account">
+            <Link href="/login" className="hidden text-[#8f5c70] transition hover:text-[#c44778] sm:grid" aria-label="Account">
               <svg aria-hidden="true" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7" viewBox="0 0 24 24">
                 <circle cx="12" cy="8" r="3.2" />
                 <path d="M5 20a7 7 0 0 1 14 0" />
@@ -271,10 +276,10 @@ export default function Navbar() {
                   {/* User Info */}
                   <div className="border-b border-[#f0e2d8] px-6 py-4">
                     <p className="text-sm font-semibold text-[#2b211b]">
-                      {user.firstName} {user.lastName}
+                      {user.name}
                     </p>
                     <p className="text-xs text-[#8a7062]">
-                      {user.primaryEmailAddress?.emailAddress}
+                      {user.email}
                     </p>
                   </div>
 

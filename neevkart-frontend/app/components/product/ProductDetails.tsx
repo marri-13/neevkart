@@ -3,7 +3,6 @@
 import { ChangeEvent, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useUser } from "@clerk/nextjs";
 import { Product, formatPrice } from "@/lib/products";
 import { useCart } from "@/lib/cart";
 
@@ -13,7 +12,6 @@ type ProductDetailsProps = {
 
 export default function ProductDetailsClient({ product }: ProductDetailsProps) {
   const router = useRouter();
-  const { user, isLoaded } = useUser();
   const { addItem } = useCart();
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
@@ -25,14 +23,10 @@ export default function ProductDetailsClient({ product }: ProductDetailsProps) {
       return;
     }
 
-    // Check if user is authenticated
-    if (!isLoaded) {
-      return;
-    }
-
-    if (!user) {
-      // Redirect to sign-up if not authenticated
-      router.push("/sign-up");
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    if (!token) {
+      const currentPath = window.location.pathname + window.location.search;
+      router.push(`/register?redirect=${encodeURIComponent(currentPath)}`);
       return;
     }
 

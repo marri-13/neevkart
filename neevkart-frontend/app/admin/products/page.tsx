@@ -1,12 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@clerk/nextjs";
 import { createAdminApi, checkAdminRole } from "@/lib/adminAuth";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
-import "../admin.css";
-import "./products.css";
 
 interface Product {
   _id: string;
@@ -18,7 +15,6 @@ interface Product {
 }
 
 export default function ProductsPage() {
-  const { getToken } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -36,24 +32,19 @@ export default function ProductsPage() {
   useEffect(() => {
     const initPage = async () => {
       try {
-        const token = await getToken();
-        if (!token) {
-          router.push("/sign-in");
-          return;
-        }
-        await checkAdminRole(token);
-        fetchProducts(token);
+        await checkAdminRole();
+        fetchProducts();
       } catch (err) {
         console.error("Admin check failed:", err);
         router.push("/");
       }
     };
     initPage();
-  }, [getToken, router]);
+  }, [router]);
 
-  const fetchProducts = async (token: string) => {
+  const fetchProducts = async () => {
     try {
-      const api = createAdminApi(token);
+      const api = createAdminApi();
       const response = await api.get("/api/admin/products");
       setProducts(response.data.products || []);
     } catch (err) {
@@ -82,16 +73,13 @@ export default function ProductsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const token = await getToken();
-      if (!token) return;
-
-      const api = createAdminApi(token);
+      const api = createAdminApi();
       if (editingId) {
         await api.put(`/api/admin/products/${editingId}`, formData);
       } else {
         await api.post("/api/admin/products", formData);
       }
-      fetchProducts(token);
+      fetchProducts();
       resetForm();
     } catch (err) {
       console.error("Failed to save product");
@@ -101,12 +89,9 @@ export default function ProductsPage() {
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure?")) return;
     try {
-      const token = await getToken();
-      if (!token) return;
-
-      const api = createAdminApi(token);
+      const api = createAdminApi();
       await api.delete(`/api/admin/products/${id}`);
-      fetchProducts(token);
+      fetchProducts();
     } catch (err) {
       console.error("Failed to delete product");
     }
@@ -136,19 +121,25 @@ export default function ProductsPage() {
     setShowForm(false);
   };
 
-  if (loading) return <div className="loading">Loading...</div>;
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen text-xl text-gray-400 font-sans">
+        Loading...
+      </div>
+    );
+  }
 
   return (
-    <div className="admin-dashboard">
+    <div className="flex min-h-screen bg-[#f5f5f5]">
       <Sidebar />
-      <main className="main-content">
+      <main className="flex-1 ml-[250px] transition-all duration-300 overflow-y-auto max-h-screen max-md:ml-[80px]">
         <Header />
 
-        <div className="products-content">
-          <div className="products-header">
-            <h1>Products Management</h1>
+        <div className="p-8 max-w-[1400px] mx-auto max-md:p-4 font-sans">
+          <div className="flex justify-between items-center mb-8 flex-wrap gap-4">
+            <h1 className="text-gray-800 text-3xl font-bold max-md:text-2xl">Products Management</h1>
             <button
-              className="btn-primary"
+              className="inline-flex items-center justify-center bg-gradient-to-r from-[#8b2e5f] to-[#c41e3a] text-white px-6 py-3 rounded-lg font-semibold cursor-pointer transition hover:-translate-y-0.5 hover:shadow-[0_8px_16px_rgba(139,46,95,0.3)] duration-300"
               onClick={() => setShowForm(!showForm)}
             >
               {showForm ? "Cancel" : "+ Add New Product"}
@@ -156,38 +147,43 @@ export default function ProductsPage() {
           </div>
 
           {showForm && (
-            <div className="product-form-container">
-              <h2>{editingId ? "Edit Product" : "Add New Product"}</h2>
-              <form onSubmit={handleSubmit} className="product-form">
-                <div className="form-grid">
-                  <div className="form-group">
-                    <label>Product Name</label>
+            <div className="bg-white p-8 rounded-lg shadow-[0_2px_8px_rgba(0,0,0,0.06)] mb-8">
+              <h2 className="text-gray-800 text-xl font-bold mb-6">
+                {editingId ? "Edit Product" : "Add New Product"}
+              </h2>
+              <form onSubmit={handleSubmit} className="flex flex-col">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                  <div className="flex flex-col">
+                    <label className="font-semibold text-gray-700 mb-2 text-sm">Product Name</label>
                     <input
                       type="text"
                       name="name"
                       value={formData.name}
                       onChange={handleInputChange}
+                      className="border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:border-[#8b2e5f] focus:ring-2 focus:ring-[#8b2e5f]/10 transition duration-300"
                       required
                     />
                   </div>
 
-                  <div className="form-group">
-                    <label>Price (₹)</label>
+                  <div className="flex flex-col">
+                    <label className="font-semibold text-gray-700 mb-2 text-sm">Price (₹)</label>
                     <input
                       type="number"
                       name="price"
                       value={formData.price}
                       onChange={handleInputChange}
+                      className="border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:border-[#8b2e5f] focus:ring-2 focus:ring-[#8b2e5f]/10 transition duration-300"
                       required
                     />
                   </div>
 
-                  <div className="form-group">
-                    <label>Category</label>
+                  <div className="flex flex-col">
+                    <label className="font-semibold text-gray-700 mb-2 text-sm">Category</label>
                     <select
                       name="category"
                       value={formData.category}
                       onChange={handleInputChange}
+                      className="border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:border-[#8b2e5f] focus:ring-2 focus:ring-[#8b2e5f]/10 transition duration-300"
                       required
                     >
                       <option value="">Select Category</option>
@@ -198,39 +194,48 @@ export default function ProductsPage() {
                     </select>
                   </div>
 
-                  <div className="form-group">
-                    <label>Description</label>
+                  <div className="flex flex-col">
+                    <label className="font-semibold text-gray-700 mb-2 text-sm">Description</label>
                     <textarea
                       name="description"
                       value={formData.description}
                       onChange={handleInputChange}
                       rows={3}
+                      className="border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:border-[#8b2e5f] focus:ring-2 focus:ring-[#8b2e5f]/10 transition duration-300"
                       required
                     />
                   </div>
 
-                  <div className="form-group">
-                    <label>Product Image</label>
+                  <div className="flex flex-col">
+                    <label className="font-semibold text-gray-700 mb-2 text-sm">Product Image</label>
                     <input
                       type="file"
                       accept="image/*"
                       onChange={handleImageUpload}
+                      className="border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:border-[#8b2e5f] focus:ring-2 focus:ring-[#8b2e5f]/10 transition duration-300"
                     />
                     {formData.image && (
                       <img
                         src={formData.image}
                         alt="preview"
-                        className="image-preview"
+                        className="max-w-[150px] mt-3 rounded-lg border border-gray-200 shadow-sm"
                       />
                     )}
                   </div>
                 </div>
 
-                <div className="form-actions">
-                  <button type="submit" className="btn-primary">
+                <div className="flex gap-4 mt-4">
+                  <button
+                    type="submit"
+                    className="flex-1 bg-gradient-to-r from-[#8b2e5f] to-[#c41e3a] text-white px-6 py-3 rounded-lg font-semibold cursor-pointer transition hover:-translate-y-0.5 hover:shadow-[0_8px_16px_rgba(139,46,95,0.3)] duration-300"
+                  >
                     {editingId ? "Update Product" : "Add Product"}
                   </button>
-                  <button type="button" className="btn-secondary" onClick={resetForm}>
+                  <button
+                    type="button"
+                    className="flex-1 bg-gray-100 border border-gray-300 text-gray-700 px-6 py-3 rounded-lg font-semibold cursor-pointer transition hover:bg-gray-200 duration-300"
+                    onClick={resetForm}
+                  >
                     Cancel
                   </button>
                 </div>
@@ -238,48 +243,60 @@ export default function ProductsPage() {
             </div>
           )}
 
-          <div className="products-table-container">
-            <table className="products-table">
-              <thead>
+          <div className="bg-white rounded-lg shadow-[0_2px_8px_rgba(0,0,0,0.06)] overflow-hidden overflow-x-auto">
+            <table className="w-full border-collapse text-left text-sm">
+              <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
-                  <th>Image</th>
-                  <th>Name</th>
-                  <th>Category</th>
-                  <th>Price</th>
-                  <th>Actions</th>
+                  <th className="p-4 font-semibold text-gray-700 whitespace-nowrap">Image</th>
+                  <th className="p-4 font-semibold text-gray-700 whitespace-nowrap">Name</th>
+                  <th className="p-4 font-semibold text-gray-700 whitespace-nowrap">Category</th>
+                  <th className="p-4 font-semibold text-gray-700 whitespace-nowrap">Price</th>
+                  <th className="p-4 font-semibold text-gray-700 whitespace-nowrap">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {products.length > 0 ? (
                   products.map((product) => (
-                    <tr key={product._id}>
-                      <td>
+                    <tr key={product._id} className="hover:bg-gray-50 transition duration-150">
+                      <td className="p-4 border-b border-gray-100 text-gray-600">
                         {product.image && (
-                          <img src={product.image} alt={product.name} />
+                          <img
+                            src={product.image}
+                            alt={product.name}
+                            className="w-[60px] h-[60px] object-cover rounded-lg border border-gray-200 shadow-sm"
+                          />
                         )}
                       </td>
-                      <td>{product.name}</td>
-                      <td>{product.category}</td>
-                      <td>₹{product.price}</td>
-                      <td className="action-buttons">
-                        <button
-                          className="btn-edit"
-                          onClick={() => handleEdit(product)}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          className="btn-delete"
-                          onClick={() => handleDelete(product._id)}
-                        >
-                          Delete
-                        </button>
+                      <td className="p-4 border-b border-gray-100 text-gray-700 font-medium">
+                        {product.name}
+                      </td>
+                      <td className="p-4 border-b border-gray-100 text-gray-650 capitalize">
+                        {product.category}
+                      </td>
+                      <td className="p-4 border-b border-gray-100 text-[#2e7d32] font-semibold text-[1.05rem]">
+                        ₹{product.price}
+                      </td>
+                      <td className="p-4 border-b border-gray-100">
+                        <div className="flex gap-2">
+                          <button
+                            className="px-3 py-1.5 bg-blue-50 text-blue-600 rounded-md font-semibold text-xs transition hover:bg-blue-100 duration-300"
+                            onClick={() => handleEdit(product)}
+                          >
+                            Edit
+                          </button>
+                          <button
+                            className="px-3 py-1.5 bg-red-50 text-red-600 rounded-md font-semibold text-xs transition hover:bg-red-100 duration-300"
+                            onClick={() => handleDelete(product._id)}
+                          >
+                            Delete
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={5} className="empty-state">
+                    <td colSpan={5} className="text-center text-gray-400 py-12">
                       No products yet. Add your first product!
                     </td>
                   </tr>

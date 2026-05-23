@@ -13,6 +13,15 @@ export default function CartPage() {
   const { items, removeItem, updateQuantity, getTotalPrice, clearCart } = useCart();
   const totalPrice = getTotalPrice();
 
+  const handleProceedToCheckout = () => {
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    if (!token) {
+      router.push("/register?redirect=%2Fcheckout");
+      return;
+    }
+    router.push("/checkout");
+  };
+
   if (items.length === 0) {
     return (
       <>
@@ -182,7 +191,7 @@ export default function CartPage() {
                 </div>
 
                 <button
-                  onClick={() => router.push("/checkout")}
+                  onClick={handleProceedToCheckout}
                   className="mb-3 w-full rounded bg-[#a51d49] py-3 font-medium text-white hover:bg-[#8a1c39]"
                 >
                   Proceed to Checkout
