@@ -1,14 +1,30 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
+import Order from "../models/Order.js";
 
 // Register new user
 export const registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    if (!name || !email || !password) {
+    if (!name || !name.trim() || !email || !email.trim() || !password) {
       return res.status(400).json({ success: false, message: "Please enter all fields" });
+    }
+
+    // Email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      return res.status(400).json({ success: false, message: "Invalid email format" });
+    }
+
+    // Password strength validation
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/;
+    if (!passwordRegex.test(password)) {
+      return res.status(400).json({
+        success: false,
+        message: "Password must be at least 8 characters long, and contain at least one uppercase letter, one lowercase letter, one number, and one special character.",
+      });
     }
 
     const existingUser = await User.findOne({ email });
@@ -67,7 +83,7 @@ export const loginUser = async (req, res) => {
     // Verify password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(400).json({ success: false, message: "Invalid credentials" });
+      return res.status(400).json({ success: false, message: "Password mismatch" });
     }
 
     // Create JWT Token
@@ -91,3 +107,15 @@ export const loginUser = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error during login" });
   }
 };
+
+// Get past orders for logged in user
+export const getUserOrders = async (req, res) => {
+  try {
+    const orders = await Order.find({ customerEmail: req.user.email }).sort({ createdAt: -1 });
+    res.json({ success: true, orders });
+  } catch (error) {
+    console.error("Fetch user orders error:", error);
+    res.status(500).json({ success: false, message: "Failed to fetch orders" });
+  }
+};
+
