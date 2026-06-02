@@ -1,12 +1,14 @@
 "use client";
 
-import { Suspense, useMemo, useState, type ReactNode } from "react";
+import { Suspense, useMemo, useState, useEffect, type ReactNode } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import ProductCard from "../components/product/ProductCard";
 import Navbar from "../components/navbar/Navbar";
 import Footer from "../components/home/Footer";
 import { products, type Product } from "@/lib/products";
+import axios from "axios";
+import { API_URL } from "@/lib/userAuth";
 
 type SortOption = "newest" | "price-low" | "price-high" | "popular";
 
@@ -179,6 +181,7 @@ function SareesListing({
   const initialFabric = fabricFromQuery(queryMaterial);
   const normalizedSearch = normalize(querySearch ?? "");
 
+  const [items, setItems] = useState<Product[]>([]);
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const [selectedFabric, setSelectedFabric] = useState<string | null>(initialFabric);
   const [selectedPriceRange, setSelectedPriceRange] = useState<{ min: number; max: number }>({
@@ -187,6 +190,27 @@ function SareesListing({
   });
   const [sortBy, setSortBy] = useState<SortOption>("newest");
   const [showFilters, setShowFilters] = useState(false);
+
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        const response = await axios.get(`${API_URL}/api/products`);
+        if (response.data && response.data.products) {
+          const mapped = response.data.products.map((p: any) => ({
+            ...p,
+            id: p.id || p._id,
+          }));
+          setItems(mapped);
+        } else {
+          setItems(products);
+        }
+      } catch (err) {
+        console.warn("Failed to load sarees from backend. Using static fallback.", err);
+        setItems(products);
+      }
+    };
+    loadProducts();
+  }, []);
 
   const pageTitle = useMemo(() => {
     if (querySearch) {
@@ -209,7 +233,7 @@ function SareesListing({
   }, [querySearch, queryType, selectedCategory, selectedFabric]);
 
   const filteredProducts = useMemo(() => {
-    let result = products.filter((product) => product.category !== "Dress Materials");
+    let result = items.filter((product) => product.category !== "Dress Materials");
 
     if (selectedCategory !== "All") {
       result = result.filter((product) => product.category === selectedCategory);
