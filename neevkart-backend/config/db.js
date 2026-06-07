@@ -8,4 +8,4 @@ const connectDB = async () => {
    await mongoose.connect(`${process.env.MONGODB_URI}/neevkart`)
 }
 
-export default connectDB;
+export default connectDB; 
