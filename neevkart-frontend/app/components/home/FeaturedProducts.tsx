@@ -1,10 +1,38 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import ProductCard from "../product/ProductCard";
-import { products } from "@/lib/products";
+import { products, type Product } from "@/lib/products";
+import axios from "axios";
+import { API_URL } from "@/lib/userAuth";
 
 export default function FeaturedProducts() {
-  const featured = products
+  const [items, setItems] = useState<Product[]>([]);
+
+  useEffect(() => {
+    const loadFeatured = async () => {
+      try {
+        const response = await axios.get(`${API_URL}/api/products`);
+        if (response.data && response.data.products) {
+          const mapped = response.data.products.map((p: any) => ({
+            ...p,
+            id: p.id || p._id,
+          }));
+          setItems(mapped);
+        } else {
+          setItems(products);
+        }
+      } catch (err) {
+        console.warn("Failed to load featured products from backend. Using local fallback.", err);
+        setItems(products);
+      }
+    };
+    loadFeatured();
+  }, []);
+
+  const featured = items
     .filter((product) => product.category !== "Dress Materials")
     .slice(0, 8);
 

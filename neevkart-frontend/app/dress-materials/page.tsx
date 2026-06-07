@@ -1,12 +1,14 @@
 "use client";
 
-import { Suspense, useMemo, useState, type ReactNode } from "react";
+import { Suspense, useMemo, useState, useEffect, type ReactNode } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import Footer from "../components/home/Footer";
 import Navbar from "../components/navbar/Navbar";
 import ProductCard from "../components/product/ProductCard";
-import { products } from "@/lib/products";
+import { products, type Product } from "@/lib/products";
+import axios from "axios";
+import { API_URL } from "@/lib/userAuth";
 
 type SortOption = "recommended" | "price-low" | "price-high";
 
@@ -41,14 +43,36 @@ function occasionFromQuery(value: string | null) {
 
 function DressMaterialsContent() {
   const searchParams = useSearchParams();
+  const [items, setItems] = useState<Product[]>([]);
   const [selectedMaterial, setSelectedMaterial] = useState(materialFromQuery(searchParams.get("material")));
   const [selectedOccasion, setSelectedOccasion] = useState(occasionFromQuery(searchParams.get("occasion")));
   const [selectedPriceRange, setSelectedPriceRange] = useState(priceRanges[0]);
   const [sortBy, setSortBy] = useState<SortOption>("recommended");
   const [showFilters, setShowFilters] = useState(false);
 
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        const response = await axios.get(`${API_URL}/api/products`);
+        if (response.data && response.data.products) {
+          const mapped = response.data.products.map((p: any) => ({
+            ...p,
+            id: p.id || p._id,
+          }));
+          setItems(mapped);
+        } else {
+          setItems(products);
+        }
+      } catch (err) {
+        console.warn("Failed to load dress materials from backend. Using static fallback.", err);
+        setItems(products);
+      }
+    };
+    loadProducts();
+  }, []);
+
   const filteredProducts = useMemo(() => {
-    let result = products.filter((product) => product.category === "Dress Materials");
+    let result = items.filter((product) => product.category === "Dress Materials");
 
     if (selectedMaterial !== "All") {
       result = result.filter((product) => normalize(product.fabric) === normalize(selectedMaterial));

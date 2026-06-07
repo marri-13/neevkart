@@ -1,4 +1,6 @@
 import Admin from "../models/Admin.js";
+import Product from "../models/Product.js";
+import Order from "../models/Order.js";
 
 export const checkRole = async (req, res) => {
   try {
@@ -22,3 +24,28 @@ export const checkRole = async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 };
+
+// Get admin dashboard stats
+export const getStats = async (req, res) => {
+  try {
+    const totalProducts = await Product.countDocuments();
+    const totalOrders = await Order.countDocuments();
+    
+    // Sum total revenue of completed orders
+    const completedOrders = await Order.find({ paymentStatus: "completed" });
+    const totalRevenue = completedOrders.reduce((sum, order) => sum + order.totalAmount, 0);
+
+    res.json({
+      success: true,
+      stats: {
+        totalProducts,
+        totalOrders,
+        totalRevenue,
+      },
+    });
+  } catch (error) {
+    console.error("Fetch admin stats error:", error);
+    res.status(500).json({ message: "Failed to fetch dashboard stats" });
+  }
+};
+

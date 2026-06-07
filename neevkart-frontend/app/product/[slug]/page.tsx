@@ -1,20 +1,56 @@
 import Link from "next/link";
-import { products, getProductBySlug } from "@/lib/products";
+import { products, getProductBySlug, type Product } from "@/lib/products";
 import Navbar from "@/app/components/navbar/Navbar";
 import Footer from "@/app/components/home/Footer";
 import ProductCard from "@/app/components/product/ProductCard";
 import ProductDetailsClient from "@/app/components/product/ProductDetails";
 import { notFound } from "next/navigation";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  
+  let product: Product | null = null;
+  let allProducts: Product[] = [];
+
+  // Try to fetch from backend
+  try {
+    const [detailRes, allRes] = await Promise.all([
+      fetch(`${API_URL}/api/products/${slug}`, { next: { revalidate: 60 } }).then(res => res.json()),
+      fetch(`${API_URL}/api/products`, { next: { revalidate: 60 } }).then(res => res.json())
+    ]);
+
+    if (detailRes.success && detailRes.product) {
+      product = {
+        ...detailRes.product,
+        id: detailRes.product.id || detailRes.product._id
+      };
+    }
+    
+    if (allRes.success && allRes.products) {
+      allProducts = allRes.products.map((p: any) => ({
+        ...p,
+        id: p.id || p._id
+      }));
+    }
+  } catch (err) {
+    console.warn("Failed to fetch product details from backend. Using static fallback.", err);
+  }
+
+  // Fallback to local data if backend fetch didn't yield anything
+  if (!product) {
+    product = getProductBySlug(slug) || null;
+  }
+  if (allProducts.length === 0) {
+    allProducts = products;
+  }
 
   if (!product) {
     notFound();
   }
 
-  const relatedProducts = products
+  const relatedProducts = allProducts
     .filter((p) => p.category === product.category && p.id !== product.id)
     .slice(0, 4);
   const parentHref = product.category === "Dress Materials" ? "/dress-materials" : "/sarees";

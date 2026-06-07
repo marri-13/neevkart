@@ -13,19 +13,53 @@ const productSchema = new mongoose.Schema(
     category: {
       type: String,
       required: true,
-      enum: ["sarees", "wedding", "festive", "materials"],
     },
-    description: {
+    fabric: {
       type: String,
+      default: "",
+    },
+    occasion: {
+      type: String,
+      default: "",
+    },
+    color: {
+      type: String,
+      default: "",
+    },
+    price: {
+      type: Number,
       required: true,
+    },
+    originalPrice: {
+      type: Number,
     },
     image: {
       type: String,
       required: true,
     },
+    images: {
+      type: [String],
+      default: [],
+    },
     stock: {
       type: Number,
       default: 0,
+    },
+    tag: {
+      type: String,
+      default: "",
+    },
+    collections: {
+      type: [String],
+      default: [],
+    },
+    description: {
+      type: String,
+      required: true,
+    },
+    details: {
+      type: [String],
+      default: [],
     },
     slug: {
       type: String,

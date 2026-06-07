@@ -8,6 +8,7 @@ import Navbar from "../components/navbar/Navbar";
 import Footer from "../components/home/Footer";
 import { useCart } from "@/lib/cart";
 import { formatPrice } from "@/lib/products";
+import { createApi } from "@/lib/userAuth";
 
 type FormData = {
   fullName: string;
@@ -35,6 +36,7 @@ type RazorpayOptions = {
   currency: string;
   name: string;
   description: string;
+  order_id?: string;
   customer_notify: number;
   prefill: {
     name: string;
@@ -127,19 +129,64 @@ export default function CheckoutPage() {
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
 
-    if (!formData.fullName.trim()) newErrors.fullName = "Full name is required";
-    if (!formData.email.trim()) newErrors.email = "Email is required";
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email))
-      newErrors.email = "Invalid email";
-    if (!formData.phone.trim()) newErrors.phone = "Phone number is required";
-    else if (!/^\d{10}$/.test(formData.phone.replace(/\D/g, "")))
-      newErrors.phone = "Phone must be 10 digits";
-    if (!formData.address.trim()) newErrors.address = "Address is required";
-    if (!formData.city.trim()) newErrors.city = "City is required";
-    if (!formData.state.trim()) newErrors.state = "State is required";
-    if (!formData.pincode.trim()) newErrors.pincode = "Pincode is required";
-    else if (!/^\d{6}$/.test(formData.pincode))
-      newErrors.pincode = "Pincode must be 6 digits";
+    // Full Name validation
+    if (!formData.fullName.trim()) {
+      newErrors.fullName = "Full name is required";
+    } else if (formData.fullName.trim().length < 3) {
+      newErrors.fullName = "Full name must be at least 3 characters long";
+    } else if (!/^[a-zA-Z\s]+$/.test(formData.fullName.trim())) {
+      newErrors.fullName = "Full name must contain only letters and spaces";
+    }
+
+    // Email validation
+    if (!formData.email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
+      newErrors.email = "Invalid email format";
+    }
+
+    // Phone validation
+    const cleanPhone = formData.phone.trim();
+    if (!cleanPhone) {
+      newErrors.phone = "Phone number is required";
+    } else if (cleanPhone.length !== 10) {
+      newErrors.phone = "Phone number must be exactly 10 digits";
+    } else if (!/^\d{10}$/.test(cleanPhone)) {
+      newErrors.phone = "Phone number must contain only digits";
+    }
+
+    // Address validation
+    if (!formData.address.trim()) {
+      newErrors.address = "Address is required";
+    } else if (formData.address.trim().length < 10) {
+      newErrors.address = "Address must be at least 10 characters long";
+    }
+
+    // City validation
+    if (!formData.city.trim()) {
+      newErrors.city = "City is required";
+    } else if (formData.city.trim().length < 2) {
+      newErrors.city = "City must be at least 2 characters long";
+    } else if (!/^[a-zA-Z\s]+$/.test(formData.city.trim())) {
+      newErrors.city = "City must contain only letters and spaces";
+    }
+
+    // State validation
+    if (!formData.state.trim()) {
+      newErrors.state = "State is required";
+    } else if (formData.state.trim().length < 2) {
+      newErrors.state = "State must be at least 2 characters long";
+    } else if (!/^[a-zA-Z\s]+$/.test(formData.state.trim())) {
+      newErrors.state = "State must contain only letters and spaces";
+    }
+
+    // Pincode validation
+    const cleanPincode = formData.pincode.trim();
+    if (!cleanPincode) {
+      newErrors.pincode = "Pincode is required";
+    } else if (!/^\d{6}$/.test(cleanPincode)) {
+      newErrors.pincode = "Pincode must be exactly 6 digits";
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -159,6 +206,21 @@ export default function CheckoutPage() {
     setLoading(true);
 
     try {
+      // Create Razorpay Order in Backend
+      const api = createApi();
+      const orderRes = await api.post("/api/payment/create-order", {
+        amount: finalPrice,
+        name: formData.fullName,
+        email: formData.email,
+        phone: formData.phone,
+      });
+
+      if (!orderRes.data || !orderRes.data.success) {
+        throw new Error(orderRes.data?.error || "Failed to create order on backend");
+      }
+
+      const backendOrderId = orderRes.data.orderId;
+
       const script = document.createElement("script");
       script.src = "https://checkout.razorpay.com/v1/checkout.js";
       script.async = true;
@@ -169,6 +231,7 @@ export default function CheckoutPage() {
           currency: "INR",
           name: "NeevKart",
           description: "Purchase Sarees",
+          order_id: backendOrderId,
           customer_notify: 1,
           prefill: {
             name: formData.fullName,
@@ -182,9 +245,37 @@ export default function CheckoutPage() {
             pincode: formData.pincode,
           },
           handler: async (response) => {
-            console.log("Payment successful:", response);
-            clearCart();
-            router.push(`/order-confirmation?payment_id=${response.razorpay_payment_id}`);
+            console.log("Payment successful, verifying signature with backend...", response);
+            try {
+              const verifyRes = await api.post("/api/payment/verify-payment", {
+                razorpay_order_id: backendOrderId,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                customerName: formData.fullName,
+                customerEmail: formData.email,
+                customerPhone: formData.phone,
+                address: formData.address,
+                items,
+                totalAmount: finalPrice,
+                notes: {
+                  city: formData.city,
+                  state: formData.state,
+                  pincode: formData.pincode,
+                }
+              });
+
+              if (verifyRes.data && verifyRes.data.success) {
+                clearCart();
+                router.push(`/order-confirmation?payment_id=${response.razorpay_payment_id}`);
+              } else {
+                alert("Payment verification failed. Please contact customer support.");
+                setLoading(false);
+              }
+            } catch (err: any) {
+              console.error("Verification failed:", err);
+              alert(err.response?.data?.message || "Payment verification failed. Please contact customer support.");
+              setLoading(false);
+            }
           },
           modal: {
             ondismiss: () => {
@@ -196,11 +287,11 @@ export default function CheckoutPage() {
 
         const rzp = new (window as unknown as WindowWithRazorpay).Razorpay(options);
         rzp.open();
-        setLoading(false);
       };
       document.body.appendChild(script);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Payment error:", error);
+      alert(error.message || "Failed to initialize payment. Please try again.");
       setLoading(false);
     }
   };
