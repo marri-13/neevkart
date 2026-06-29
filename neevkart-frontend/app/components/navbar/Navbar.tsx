@@ -361,7 +361,18 @@ export default function Navbar() {
         <div className="luxury-container hidden h-16 items-stretch justify-center gap-7 text-[12px] font-semibold uppercase tracking-[0.12em] text-[#56463e] md:flex">
           {navItems.map((item) => (
             <div key={item.label} className="group flex items-center">
-              <Link href={item.href} className="flex h-16 items-center rounded-full px-6 transition hover:bg-[#fff7f9] hover:text-[#a51d49]">
+              <Link 
+                href={item.href} 
+                className="flex h-16 items-center rounded-full px-6 transition hover:bg-[#fff7f9] hover:text-[#a51d49]"
+                onClick={(e) => {
+                  if (typeof window !== "undefined") {
+                    const currentPath = window.location.pathname + window.location.search;
+                    if (currentPath === item.href) {
+                      window.location.reload();
+                    }
+                  }
+                }}
+              >
                 {item.label}
               </Link>
 
@@ -431,7 +442,15 @@ export default function Navbar() {
               <Link
                 key={href}
                 href={href}
-                onClick={() => setMobileMenuOpen(false)}
+                onClick={(e) => {
+                  setMobileMenuOpen(false);
+                  if (typeof window !== "undefined") {
+                    const currentPath = window.location.pathname + window.location.search;
+                    if (currentPath === href) {
+                      window.location.reload();
+                    }
+                  }
+                }}
                 className="rounded-xl px-3 py-2 text-sm font-medium text-[#59463d] hover:bg-[#fff1f5] hover:text-[#a51d49]"
               >
                 {label}

@@ -1,0 +1,12 @@
+
+> neevkart-backend@1.0.0 dev
+> nodemon server.js
+
+[33m[nodemon] 3.1.14[39m
+[33m[nodemon] to restart at any time, enter `rs`[39m
+[33m[nodemon] watching path(s): *.*[39m
+[33m[nodemon] watching extensions: js,mjs,cjs,json[39m
+[32m[nodemon] starting `node server.js`[39m
+MONGODB_URI: mongodb+srv://sunkarisaikumar2004:sairaju1@cluster0.g4lrw6g.mongodb.net
+ Server running on http://localhost:5000
+ Database connected

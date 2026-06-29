@@ -13,32 +13,50 @@ export const getProducts = async (req, res) => {
 // Create product
 export const createProduct = async (req, res) => {
   try {
-    const { name, price, category, description, image } = req.body;
+    const { 
+      name, price, category, description, image,
+      fabric, occasion, color, originalPrice, stock, tag, collections, details, images 
+    } = req.body;
 
     const slug = name.toLowerCase().replace(/\s+/g, "-");
 
     const product = new Product({
-      name,
-      price,
-      category,
-      description,
-      image,
-      slug,
+      name, price, category, description, image, slug,
+      fabric, occasion, color, originalPrice, stock, tag, collections, details, images
     });
 
     await product.save();
     res.status(201).json({ product, message: "Product created successfully" });
   } catch (error) {
-    res.status(500).json({ message: "Failed to create product" });
+    res.status(500).json({ message: "Failed to create product", error: error.message });
+  }
+};
+
+// Get product by ID
+export const getProductById = async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+    res.json({ product });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch product" });
   }
 };
 
 // Update product
 export const updateProduct = async (req, res) => {
   try {
-    const { name, price, category, description, image } = req.body;
+    const { 
+      name, price, category, description, image,
+      fabric, occasion, color, originalPrice, stock, tag, collections, details, images 
+    } = req.body;
 
-    const updates = { name, price, category, description, image };
+    const updates = { 
+      name, price, category, description, image,
+      fabric, occasion, color, originalPrice, stock, tag, collections, details, images 
+    };
     if (name) {
       updates.slug = name.toLowerCase().replace(/\s+/g, "-");
     }

@@ -1,15 +1,50 @@
 import Admin from "../models/Admin.js";
 import Product from "../models/Product.js";
 import Order from "../models/Order.js";
+import jwt from "jsonwebtoken";
+
+const createToken = (payload) => {
+  const secret = process.env.JWT_SECRET || "neevkart-admin-secret";
+  return jwt.sign(payload, secret, { expiresIn: "1d" });
+};
+
+export const login = async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    const adminUsername = process.env.ADMIN_USERNAME || "admin";
+    const adminPassword = process.env.ADMIN_PASSWORD || "admin";
+
+    if (username !== adminUsername || password !== adminPassword) {
+      return res.status(401).json({ message: "Invalid admin credentials" });
+    }
+
+    const admin = {
+      username: adminUsername,
+      role: "admin",
+      name: "Neevkart Admin",
+    };
+
+    res.json({
+      success: true,
+      token: createToken(admin),
+      admin,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Admin login failed" });
+  }
+};
 
 export const checkRole = async (req, res) => {
   try {
-    // Find the first admin or return a mock admin since Clerk is removed
-    let admin = await Admin.findOne();
+    let admin = req.user;
+    const storedAdmin = await Admin.findOne();
+    if (storedAdmin) {
+      admin = storedAdmin;
+    }
     if (!admin) {
       admin = {
         role: "admin",
-        name: "Temporary Admin",
+        name: "Neevkart Admin",
         email: "admin@neevkart.com",
       };
     }

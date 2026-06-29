@@ -43,8 +43,8 @@ function LoginContent() {
         localStorage.setItem("token", response.data.token);
         localStorage.setItem("user", JSON.stringify(response.data.user));
         
-        // Hard redirect to cart to force reload state and prevent race conditions
-        window.location.href = "/cart";
+        // Hard redirect to intended page (or home) to force reload state
+        window.location.href = redirect;
       }
     } catch (err: any) {
       setError(err.response?.data?.message || "Invalid email or password.");

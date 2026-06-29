@@ -192,6 +192,11 @@ function SareesListing({
   const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
+    setSelectedCategory(categoryFromQuery(queryCategory));
+    setSelectedFabric(fabricFromQuery(queryMaterial));
+  }, [queryCategory, queryMaterial]);
+
+  useEffect(() => {
     const loadProducts = async () => {
       try {
         const response = await axios.get(`${API_URL}/api/products`);
@@ -455,7 +460,6 @@ function SareesContent() {
 
   return (
     <SareesListing
-      key={searchParams.toString()}
       queryCategory={searchParams.get("category")}
       queryMaterial={searchParams.get("material")}
       queryType={searchParams.get("type")}

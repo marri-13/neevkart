@@ -51,6 +51,11 @@ function DressMaterialsContent() {
   const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
+    setSelectedMaterial(materialFromQuery(searchParams.get("material")));
+    setSelectedOccasion(occasionFromQuery(searchParams.get("occasion")));
+  }, [searchParams]);
+
+  useEffect(() => {
     const loadProducts = async () => {
       try {
         const response = await axios.get(`${API_URL}/api/products`);

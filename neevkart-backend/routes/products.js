@@ -1,6 +1,7 @@
 import express from "express";
 import {
   getProducts,
+  getProductById,
   createProduct,
   updateProduct,
   deleteProduct,
@@ -11,6 +12,9 @@ const router = express.Router();
 
 // Get all products
 router.get("/", adminAuthMiddleware, getProducts);
+
+// Get product by ID
+router.get("/:id", adminAuthMiddleware, getProductById);
 
 // Create product
 router.post("/", adminAuthMiddleware, createProduct);
