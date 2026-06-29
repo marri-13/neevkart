@@ -26,10 +26,10 @@ export default function ProductCard({ product }: ProductCardProps) {
           {label && (
             soldOut ? (
               <div className="absolute z-20 flex items-center justify-center rounded-full bg-[#E91E63] text-white font-bold uppercase shadow-md transform rotate-3" style={{ top: '8px', right: '8px', width: '60px', height: '60px', fontSize: '0.75rem' }}>
-                SOLD OUT
+                SOLD OUT 
                 <div className="absolute bottom-0 right-0 rounded-br-full bg-[#C2185B]" style={{ width: '15px', height: '15px', clipPath: 'polygon(100% 0, 0% 100%, 100% 100%)' }}></div>
               </div>
-            ) : (
+            ) : ( 
               <span className="absolute left-0 top-6 rounded-r-md bg-[#a51d49] px-2.5 py-4 text-[11px] font-bold uppercase tracking-[0.12em] text-white shadow-[0_12px_28px_rgba(165,29,73,0.28)] [writing-mode:vertical-rl]">
                 {label}
               </span>
