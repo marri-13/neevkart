@@ -166,6 +166,13 @@ function productMatchesType(product: Product, type: string | null) {
   return productSearchText(product).includes(normalizedType);
 }
 
+function isDressMaterialProduct(product: Product) {
+  const category = normalize(product.category);
+  const name = normalize(product.name);
+
+  return category === "dress-materials" && !name.includes("saree");
+}
+
 function SareesListing({
   queryCategory,
   queryMaterial,
@@ -238,7 +245,7 @@ function SareesListing({
   }, [querySearch, queryType, selectedCategory, selectedFabric]);
 
   const filteredProducts = useMemo(() => {
-    let result = items.filter((product) => product.category !== "Dress Materials");
+    let result = items.filter((product) => !isDressMaterialProduct(product));
 
     if (selectedCategory !== "All") {
       result = result.filter((product) => product.category === selectedCategory);
@@ -265,7 +272,7 @@ function SareesListing({
     }
 
     return result;
-  }, [selectedCategory, selectedFabric, selectedPriceRange, sortBy, queryType, normalizedSearch]);
+  }, [items, selectedCategory, selectedFabric, selectedPriceRange, sortBy, queryType, normalizedSearch]);
 
   const resetFilters = () => {
     setSelectedCategory("All");

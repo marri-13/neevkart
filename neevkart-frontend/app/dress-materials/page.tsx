@@ -41,6 +41,13 @@ function occasionFromQuery(value: string | null) {
   return occasionTypes.find((occasion) => normalize(occasion).includes(normalize(value))) ?? "All";
 }
 
+function isDressMaterialProduct(product: Product) {
+  const category = normalize(product.category);
+  const name = normalize(product.name);
+
+  return category === "dress-materials" && !name.includes("saree");
+}
+
 function DressMaterialsContent() {
   const searchParams = useSearchParams();
   const [items, setItems] = useState<Product[]>([]);
@@ -77,7 +84,7 @@ function DressMaterialsContent() {
   }, []);
 
   const filteredProducts = useMemo(() => {
-    let result = items.filter((product) => product.category === "Dress Materials");
+    let result = items.filter(isDressMaterialProduct);
 
     if (selectedMaterial !== "All") {
       result = result.filter((product) => normalize(product.fabric) === normalize(selectedMaterial));
@@ -96,7 +103,7 @@ function DressMaterialsContent() {
     }
 
     return result;
-  }, [selectedMaterial, selectedOccasion, selectedPriceRange, sortBy]);
+  }, [items, selectedMaterial, selectedOccasion, selectedPriceRange, sortBy]);
 
   const resetFilters = () => {
     setSelectedMaterial("All");
