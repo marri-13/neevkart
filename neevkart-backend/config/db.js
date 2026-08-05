@@ -23,8 +23,12 @@ const connectDB = async () => {
       console.error(" Failed to seed database:", err);
     }
   });
-  console.log("MONGODB_URI:", process.env.MONGODB_URI);
-  await mongoose.connect(`${process.env.MONGODB_URI}/neevkart`);
+  const dbUri = process.env.MONGODB_URI;
+  if (!dbUri) {
+    throw new Error("MONGODB_URI is not defined in environment variables");
+  }
+  // console.log("MONGODB_URI:", dbUri);
+  await mongoose.connect(dbUri);
 };
 
 export default connectDB; 
